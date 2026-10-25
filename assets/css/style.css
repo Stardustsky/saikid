@@ -3772,7 +3772,7 @@ h1, h2,
   background: linear-gradient(90deg, #8fd49a, #5f9e6e);
   transition: width .4s cubic-bezier(.3, 1, .4, 1);
 }
-.badge-prog {
+.badge .badge-prog {
   display: block;
   margin-top: 4px;
   font-size: 10.5px;
@@ -4197,6 +4197,12 @@ h1, h2,
   background: linear-gradient(160deg, #2b3a33, #283a3a);
 }
 
+/* 彩色/强调色表面在深色下保留原有文字色 */
+:root[data-theme="dark"] .atlas-tab.active { color: #fff; }
+:root[data-theme="dark"] .option.correct { color: #1d9b6c; }
+:root[data-theme="dark"] .option.wrong { color: #e04257; }
+:root[data-theme="dark"] .mini-replay { color: #7fd0ff; }
+
 /* 浅色块 / 浅色底 */
 :root[data-theme="dark"] :is(
   .subject-icon, .stage-emoji, .stage-index, .atlas-cell, .math-cell,
@@ -4239,9 +4245,8 @@ h1, h2,
 
 :root[data-font="large"] .hud-btn { width: 52px; height: 52px; }
 :root[data-font="large"] .pill { height: 44px; font-size: 17px; }
-:root[data-font="large"] .quick-link { width: 60px; height: 58px; }
+:root[data-font="large"] .quick-link { width: 60px; height: 58px; font-size: 15px; }
 :root[data-font="large"] .quick-link span { font-size: 21px; }
-:root[data-font="large"] .quick-link small { font-size: 12.5px; }
 :root[data-font="large"] .subject-name { font-size: 19px; }
 :root[data-font="large"] .subject-meta { font-size: 12.5px; }
 :root[data-font="large"] .stage-main b { font-size: 18px; }
