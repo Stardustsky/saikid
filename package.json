@@ -1,0 +1,9 @@
+{
+  "name": "xiaolongmao",
+  "version": "1.0.0",
+  "private": true,
+  "description": "小龙猫乐园 · 纯静态幼儿学习 PWA",
+  "scripts": {
+    "test": "node tools/audit.js"
+  }
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>smoke</title>
+<style>html,body{margin:0;padding:0;background:#eef5ea}iframe{display:block;width:1280px;height:940px;border:0}pre{position:absolute;left:0;top:0;z-index:9;background:#fff;font:12px monospace;max-width:1200px;white-space:pre-wrap}</style>
+</head>
+<body>
+<iframe id="f" src="/index.html"></iframe>
+<pre id="out"></pre>
+<script>
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const f = document.getElementById('f');
+const mode = (location.search.match(/case=([a-z-]+)/) || [])[1] || 'check';
+
+function say(o) {
+  document.getElementById('out').textContent = JSON.stringify(o, null, 1);
+  document.title = 'SMOKE:' + JSON.stringify(o).slice(0, 120);
+}
+
+f.onload = () => setTimeout(run, 1300);
+
+async function run() {
+  const w = f.contentWindow;
+  const ev = expr => w.eval(expr);
+  const out = { mode };
+  try {
+    ev("(function(){ var b = document.getElementById('btn-intro-start'); if (b) b.click(); })()");
+    await sleep(320);
+    if (mode === 'arcade' || mode === 'check' || mode === 'after') {
+      ev('MiniGame.open()');
+      await sleep(450);
+      out.cards = ev("document.querySelectorAll('.arcade-card').length");
+      out.stickerTiles = ev("document.querySelectorAll('.sticker').length");
+      out.stickerLit = ev("document.querySelectorAll('.sticker.on').length");
+      out.bestLines = ev("document.querySelectorAll('.arcade-best').length");
+      out.wallText = ev("document.querySelector('.sticker-head') ? document.querySelector('.sticker-head').textContent.replace(/\\s+/g, ' ') : ''");
+    }
+    if (mode === 'after') {
+      ev("App.finishMini({ type: 'mole', subject: 'numbers', correct: 8, total: 8, stars: 3, seconds: 20, bestCombo: 5 })");
+      ev('MiniGame.open()');
+      await sleep(400);
+      out.stickerLitAfter = ev("document.querySelectorAll('.sticker.on').length");
+      out.bestCard = ev("document.querySelector('.arcade-card .arcade-best') ? document.querySelector('.arcade-card .arcade-best').textContent : ''");
+      out.stored = ev('App.state.stats.stickers.slice()');
+      out.best = ev('JSON.stringify(App.state.stats.miniBest)');
+    }
+    if (mode === 'story' || mode === 'board' || mode === 'check') {
+      ev("MiniGame.start('mole', { subject: 'numbers', fromArcade: true })");
+      await sleep(500);
+      out.story = ev("!!document.querySelector('.mini-story')");
+      out.storyText = ev("document.querySelector('.mini-story-text') ? document.querySelector('.mini-story-text').textContent : ''");
+      if (mode !== 'story') {
+        await sleep(2400);
+        out.cat = ev("!!document.querySelector('.mini-cat')");
+        out.boardClass = ev("document.querySelector('#mini-board').className");
+        out.hint = ev("document.querySelector('#mini-hint') ? document.querySelector('#mini-hint').textContent.replace(/\\s+/g, ' ') : ''");
+      }
+    }
+    out.nav = ev("document.querySelector('.screen.active') ? document.querySelector('.screen.active').id : ''");
+  } catch (e) {
+    out.error = String(e && e.stack || e);
+  }
+  say(out);
+}
+</script>
+</body>
+</html>

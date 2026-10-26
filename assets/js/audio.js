@@ -12,6 +12,9 @@ const AudioFX = (() => {
   let voiceCache = {};
   let queue = [];
   let gen = 0;
+  let doneCb = null;
+  let catLast = '';
+  let catAt = 0;
 
   // 在线语音（无需任何 Key）：
   // - 中文：百度翻译 TTS，任意句子都能合成，音色自然
@@ -174,11 +177,11 @@ const AudioFX = (() => {
   function nextUtterance(myGen) {
     if (myGen !== gen) return;
     const seg = queue.shift();
-    if (!seg) return;
+    if (!seg) { finishAll(); return; }
     const lang = seg.lang || 'zh-CN';
     const tune = TUNE[lang] || (lang.slice(0, 2) === 'zh' ? TUNE['zh-CN'] : TUNE['en-US']);
     try {
-      const u = new SpeechSynthesisUtterance(String(seg.text));
+      const u = new SpeechSynthesisUtterance(spoken(seg.text, lang));
       u.lang = lang;
       u.rate = seg.rate || tune.rate;
       u.pitch = seg.pitch || tune.pitch;
@@ -236,6 +239,21 @@ const AudioFX = (() => {
     return String(text).replace(/["“”]/g, '').trim();
   }
 
+  // 单个字母按「字母名」朗读：
+  // 直接送 "A" 给部分语音会被当成冠词 a 读成 /ə/，这就是 A 不读 /eɪ/ 的原因
+  const LETTER_NAMES = {
+    A: 'ay', B: 'bee', C: 'see', D: 'dee', E: 'ee', F: 'eff', G: 'jee',
+    H: 'aitch', I: 'eye', J: 'jay', K: 'kay', L: 'ell', M: 'em', N: 'en',
+    O: 'oh', P: 'pee', Q: 'cue', R: 'ar', S: 'ess', T: 'tee', U: 'you',
+    V: 'vee', W: 'double you', X: 'ex', Y: 'why', Z: 'zee'
+  };
+
+  function spoken(text, lang) {
+    const t = cleanText(text);
+    if (langKey(lang) === 'en' && LETTER_NAMES[t.toUpperCase()]) return LETTER_NAMES[t.toUpperCase()];
+    return t;
+  }
+
   function baiduTTS(lan, text) {
     return 'https://fanyi.baidu.com/gettts?lan=' + lan + '&spd=5&source=web&text=' + encodeURIComponent(text);
   }
@@ -246,22 +264,20 @@ const AudioFX = (() => {
 
   // 主地址：
   // - 中文整句 → 百度 TTS
-  // - 单个字母 → 百度英文 TTS + 大写（直接读字母名 /eɪ/，不会读成冠词 a）
+  // - 单字母 → 先换成字母名拼写（ay / bee / see…），保证读的是字母名
   // - 单个英文单词 → 有道真人词典发音
   // - 英文短语/句子 → 百度英文 TTS（词典没有整句发音）
   function onlineUrl(text, lang) {
-    const t = cleanText(text);
+    const t = spoken(text, lang);
     if (langKey(lang) === 'zh') return baiduTTS('zh', t);
-    if (/^[a-zA-Z]$/.test(t)) return baiduTTS('en', t.toUpperCase());
     if (/\s/.test(t)) return baiduTTS('en', t);
     return youdaoTTS(t);
   }
 
   // 备用地址：两个源互相兜底，全是标准发音
   function backupUrl(text, lang) {
-    const t = cleanText(text);
+    const t = spoken(text, lang);
     if (langKey(lang) === 'zh') return baiduTTS('zh', t);
-    if (/^[a-zA-Z]$/.test(t)) return youdaoTTS(t.toUpperCase());
     return baiduTTS('en', t);
   }
 
@@ -346,7 +362,7 @@ const AudioFX = (() => {
         return;
       }
       markOk(seg.lang);
-      if (list.length === 1) return;
+      if (list.length === 1) { finishAll(); return; }
       setTimeout(() => speakQueue(list.slice(1), myGen), seg.gap || 90);
     };
 
@@ -375,32 +391,116 @@ const AudioFX = (() => {
     }
   }
 
-  /* ---------- 系统语音（离线回退） ---------- */
+  /* ---------- 字母歌（ABC Song · 小星星旋律） ---------- */
 
-  function speakLocal(list, myGen) {
-    if (!('speechSynthesis' in window)) return;
-    queue = list.slice();
-    try { window.speechSynthesis.cancel(); } catch (e) { /* 忽略 */ }
-    nextUtterance(myGen);
+  // 26 个字母各自唱一个音，按《小星星》的旋律排好，听感是一首歌，而不是一个一个念字母
+  const ABC_NOTES = { C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880 };
+  const ABC_MELODY = [
+    ['A', 'C5', 1], ['B', 'C5', 1], ['C', 'G5', 1], ['D', 'G5', 1],
+    ['E', 'A5', 1], ['F', 'A5', 1], ['G', 'G5', 1.8],
+    ['H', 'F5', 1], ['I', 'F5', 1], ['J', 'E5', 1], ['K', 'E5', 1],
+    ['L', 'D5', 1], ['M', 'D5', 1], ['N', 'C5', 1.8],
+    ['O', 'G5', 1], ['P', 'G5', 1], ['Q', 'F5', 1], ['R', 'F5', 1],
+    ['S', 'E5', 1], ['T', 'E5', 1.8],
+    ['U', 'D5', 1], ['V', 'D5', 1], ['W', 'C5', 1], ['X', 'D5', 1],
+    ['Y', 'D5', 1], ['Z', 'C5', 2.2]
+  ];
+  let songTimers = [];
+  let songNodes = [];
+
+  function stopSong() {
+    songTimers.forEach(clearTimeout);
+    songTimers = [];
+    // 已排程的音符也要立刻收声，否则停止后还会继续响十几秒
+    songNodes.forEach(n => { try { n.stop(); } catch (e) { /* 忽略 */ } });
+    songNodes = [];
   }
 
-  function speakSegments(segments) {
+  // 字母歌专用发声：把振荡器记下来，随时可以整体掐断
+  function songNote(freq, startAt, dur, type, vol) {
+    const c = ensure();
+    if (!c) return;
+    const t0 = c.currentTime + startAt;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain);
+    gain.connect(master || c.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.06);
+    songNodes.push(osc);
+  }
+
+  // 播放字母歌，逐字母回调给页面做高亮；返回停止函数
+  function abcSong(opt) {
+    const o = opt || {};
+    stopSong();
+    if (soundOn) ensure();
+    const beat = 0.42;
+    let at = 0;
+    ABC_MELODY.forEach(([letter, note, beats]) => {
+      const freq = ABC_NOTES[note];
+      const dur = beat * beats * 0.92;
+      if (soundOn) {
+        // 主旋律 + 低八度轻垫音，听起来更饱满
+        songNote(freq, at, dur, 'triangle', 0.085);
+        songNote(freq / 2, at, dur, 'sine', 0.04);
+      }
+      songTimers.push(setTimeout(() => {
+        if (o.onLetter) o.onLetter(letter);
+      }, at * 1000));
+      at += beat * beats;
+    });
+    songTimers.push(setTimeout(() => {
+      songTimers = [];
+      if (o.onDone) o.onDone();
+    }, (at + 0.1) * 1000));
+    return stopSong;
+  }
+
+  /* ---------- 系统语音（离线回退） ---------- */
+
+  /* 一段台词读完后的回调（用在小龙猫故事后自动开局） */
+  function finishAll() {
+    if (!doneCb) return;
+    const cb = doneCb;
+    doneCb = null;
+    try { cb(); } catch (e) { /* 忽略 */ }
+  }
+
+  function speakLocal(list, myGen) {
+    if (!('speechSynthesis' in window)) { finishAll(); return; }
+    queue = list.slice();
+    try { window.speechSynthesis.cancel(); } catch (e) { /* 忽略 */ }
+    // cancel 之后立刻 speak，部分浏览器会把新句子吞掉，留一个极短的间隔最稳
+    setTimeout(() => nextUtterance(myGen), 30);
+  }
+
+  function speakSegments(segments, opt) {
     if (!voiceOn) return;
     const list = (Array.isArray(segments) ? segments : [segments])
       .filter(s => s && s.text !== undefined && s.text !== '');
     if (!list.length) return;
     gen++;
     const myGen = gen;
+    doneCb = opt && typeof opt.done === 'function' ? opt.done : null;
     stopAudio();
     try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* 忽略 */ }
-    if (canOnline(list[0].lang)) speakQueue(list, myGen);
+    // 指定 local 时直接用系统音色：不用等音频下载，点一下就能开口
+    if (!(opt && opt.local) && canOnline(list[0].lang)) speakQueue(list, myGen);
     else speakLocal(list, myGen);
   }
 
   function stopSpeak() {
     gen++;
     queue = [];
+    doneCb = null;
     stopAudio();
+    stopSong();
     try {
       if (window.speechSynthesis) window.speechSynthesis.cancel();
     } catch (e) { /* 忽略 */ }
@@ -430,6 +530,78 @@ const AudioFX = (() => {
       audio: i === 0 ? audio : '',
       gap: i === parts.length - 1 ? 90 : 210
     })));
+  }
+
+  /* ---------- 小龙猫的台词 ---------- */
+
+  // 只在句号/问号/感叹号处断句：逗号交给语音自己停顿，分批拼接的痕迹最少
+  function splitSentences(text) {
+    return String(text)
+      .replace(/([。！？!?；;])/g, '$1\u0001')
+      .split('\u0001')
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  // 同一句话永远用同一套语气，不同句子之间音高语速略有差别，避免一路平读
+  function tuneSeed(text) {
+    let h = 7;
+    for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) % 9973;
+    return h;
+  }
+
+  // 离线引擎不认识「～」，换成逗号当气口，读起来不那么像念稿子
+  function forSpeech(text) {
+    return String(text)
+      .replace(/[～~]+/g, '，')
+      .replace(/([，、])([。！？!?])/g, '$2')
+      .replace(/[，、]+$/, '');
+  }
+
+  // 音色更奶、语速更慢；soft 模式在题目朗读时不插嘴，force 用于点按重播
+  function speakCat(text, opt) {
+    if (!voiceOn || !text) return;
+    const t = cleanText(text);
+    if (!t) return;
+    const o = opt || {};
+    const now = Date.now();
+    const busy = !!audioEl ||
+      !!(window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending));
+    if (!o.force && !o.done && t === catLast && now - catAt < 6000) return;
+    if (o.soft && busy) return;
+    catLast = t;
+    catAt = now;
+
+    // 预先下载好的真人语音包：命中就播本地 mp3，点一下立即出声，断网也照样能说
+    const file = (typeof CAT_VOICE !== 'undefined' && CAT_VOICE[t]) ? CAT_VOICE[t] : '';
+    if (file) {
+      speakSegments({
+        text: t,
+        lang: 'zh-CN',
+        audio: file,
+        gap: 110
+      }, { done: o.done });
+      return;
+    }
+
+    // 没收录的台词才退回系统语音：点一下立即开口，也能和气泡文字同步
+    const local = 'speechSynthesis' in window;
+    // 离线引擎自己懂标点停顿，整句一次读完最连贯；在线语音才需要按句拆
+    const say = local ? forSpeech(t) : t;
+    const parts = local ? [say] : (t.length >= 18 ? splitSentences(t) : [t]);
+    const seed = tuneSeed(t);
+    const rate = 0.86 + (seed % 4) * 0.02;      // 0.86 ~ 0.92，像小朋友慢慢说话
+    const pitch = 1.06 + (seed % 5) * 0.02;     // 1.06 ~ 1.14，略高一点又不至于失真
+    const segs = parts.map((p, i) => ({
+      text: p,
+      lang: 'zh-CN',
+      rate: rate,
+      pitch: pitch,
+      gap: i === parts.length - 1 ? 110 : 140
+    }));
+    // 走在线语音时，多句台词先把每句音频并行下好，避免读完一句还要等下一句
+    if (!local && segs.length > 1) preload(segs);
+    speakSegments(segs, { done: o.done, local: local });
   }
 
   /* ---------- 真人拼音素材（assets/audio/pinyin） ---------- */
@@ -476,7 +648,7 @@ const AudioFX = (() => {
   }
 
   return {
-    setSound(on) { soundOn = on; if (!on) stopSpeak(); },
+    setSound(on) { soundOn = on; if (!on) { stopSpeak(); stopSong(); } },
     setVoice(on) { voiceOn = on; if (!on) stopSpeak(); },
     setOnline(on) {
       onlineOn = !!on;
@@ -537,9 +709,46 @@ const AudioFX = (() => {
       });
     },
 
+    // —— 小龙猫的声音：按成长形态变声（越小越尖），每次略有变化 ——
+    petVoice(form) {
+      const PITCH = { baby: 1.5, mini: 1.36, small: 1.22, big: 1.08, guard: 0.98, king: 0.9, myth: 0.82 };
+      const k = PITCH[form] || 1.22;
+      const base = (540 + Math.random() * 90) * k;
+      // 两声「喵呜」：上滑再落下，末尾带一点气声
+      glide(base, base * 1.6, 0, 0.1, 'triangle', 0.07);
+      glide(base * 1.55, base * 1.15, 0.1, 0.13, 'triangle', 0.055);
+      tone(base * 2.1, 0.24, 0.09, 'sine', 0.028);
+    },
+    petEat() {
+      // 三口咀嚼 + 满足的吞咽滑音
+      [0, 0.14, 0.28].forEach((t, i) => {
+        tone(320 - i * 30, t, 0.06, 'square', 0.03);
+        tone(190 - i * 20, t + 0.03, 0.06, 'sine', 0.04);
+      });
+      glide(420, 210, 0.42, 0.22, 'sine', 0.06);
+      tone(660, 0.68, 0.12, 'triangle', 0.03);
+    },
+    petBath() {
+      // 一串往上冒的水泡，最后「啵」一下
+      [0, 0.09, 0.19, 0.3, 0.42].forEach((t, i) => {
+        const f = 620 + i * 130;
+        glide(f, f * 1.65, t, 0.1, 'sine', 0.045);
+      });
+      tone(1046.5, 0.6, 0.18, 'triangle', 0.04);
+    },
+    petPlay() {
+      // 蹦蹦跳跳的上下琶音
+      arp([523.25, 783.99, 1046.5, 1318.51], 0.07, 0.15, 'triangle', 0.07);
+      glide(900, 1400, 0.3, 0.12, 'sine', 0.05);
+      glide(1400, 900, 0.44, 0.14, 'sine', 0.05);
+    },
+
     speak,
+    speakCat,
     speakSegments,
     stopSpeak,
+    abcSong,
+    stopSong,
     preload,
     pyAudio,
     resetOnline() {

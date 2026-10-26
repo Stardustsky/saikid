@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#bfe6c9">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="小龙猫乐园：给 3-6 岁孩子的数字、字母、英语、算术、拼音、汉字启蒙游戏。">
+<meta name="description" content="小龙猫乐园：给 3-6 岁孩子的数字、算术、字母、单词、拼音、汉字、图形、表达和自然探索启蒙游戏。">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="小龙猫乐园">
 <link rel="manifest" href="manifest.json">
@@ -14,7 +14,11 @@
 <meta name="referrer" content="no-referrer">
 <title>小龙猫乐园 · 幼儿益智游戏</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23eaf6dd'/%3E%3Cg fill='%23a9b8b6'%3E%3Cpath d='M30 42 L20 14 L42 32 Z'/%3E%3Cpath d='M70 42 L80 14 L58 32 Z'/%3E%3Cellipse cx='50' cy='60' rx='30' ry='27'/%3E%3C/g%3E%3Cellipse cx='50' cy='66' rx='18' ry='16' fill='%23f9f4e3'/%3E%3Ccircle cx='40' cy='52' r='4' fill='%233c4a3f'/%3E%3Ccircle cx='60' cy='52' r='4' fill='%233c4a3f'/%3E%3Cpath d='M46 60 h8 l-4 5 z' fill='%233c4a3f'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/screens.css">
+<link rel="stylesheet" href="assets/css/features.css">
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/minigames.css">
 </head>
 <body>
 
@@ -44,6 +48,13 @@
       <div class="pill coin-pill"><span class="pill-icon" aria-hidden="true">🌰</span><b id="hud-coins">0</b><span class="sr-only">颗橡果币</span></div>
       <div class="pill level-pill"><span class="pill-icon" aria-hidden="true">🎈</span><b>Lv.<i id="hud-level">1</i></b></div>
     </div>
+    <div class="hud-shortcuts" role="group" aria-label="快捷入口">
+      <button class="hud-chip" id="btn-review" type="button" title="错题复习" aria-label="错题复习">📕<span class="quick-badge empty" id="review-badge">0</span></button>
+      <button class="hud-chip" id="btn-home-mini" type="button" title="小游戏乐园" aria-label="小游戏乐园">🎮</button>
+      <button class="hud-chip" data-nav="room" type="button" title="我的小屋" aria-label="我的小屋">🏡</button>
+      <button class="hud-chip" data-nav="badges" type="button" title="成长勋章" aria-label="成长勋章">🏅</button>
+      <button class="hud-chip" id="btn-shop" type="button" title="森林商店" aria-label="森林商店">🛒</button>
+    </div>
     <div class="hud-actions">
       <button class="hud-btn" id="btn-toggle-sound" type="button" title="声音开关" aria-label="声音开关" aria-pressed="true">🔊</button>
       <button class="hud-btn" id="btn-parent" type="button" title="家长中心" aria-label="家长中心">👨‍👩‍👧</button>
@@ -57,7 +68,7 @@
       <div class="hero">
         <div class="hero-main">
           <div class="pet-zone">
-            <div class="speech" id="pet-speech">你好呀，我是小龙猫！</div>
+            <div class="speech" id="pet-speech" role="button" tabindex="0" title="点我听小龙猫说话">你好呀，我是小龙猫！</div>
             <div class="pet-stage" id="home-pet" title="摸摸小龙猫" role="button" tabindex="0" aria-label="摸摸小龙猫"></div>
             <div class="pet-name" id="pet-name">小龙猫 · Lv.1</div>
           </div>
@@ -88,7 +99,6 @@
             </div>
           </div>
         </div>
-        <p class="care-tip">小龙猫吃饱、干净、开心的时候，学习获得的橡果会更多哦！</p>
       </div>
 
       <button class="map-banner" data-nav="map">
@@ -106,20 +116,13 @@
           <div class="subjects" id="subject-grid"></div>
         </div>
         <aside class="home-side">
+          <div class="placement-card" id="placement-card"></div>
           <div class="daily-card" id="daily-card">
             <div class="daily-head">
               <div class="daily-title">📅 今日任务 <span id="daily-all">0/6</span></div>
               <small>每天 0 点刷新</small>
             </div>
             <div class="daily-list" id="daily-list"></div>
-          </div>
-
-          <div class="quick-links">
-            <button class="quick-link" id="btn-review"><span>📕</span>错题复习<span class="quick-badge" id="review-badge">0</span></button>
-            <button class="quick-link" id="btn-home-mini"><span>🎮</span>小游戏乐园</button>
-            <button class="quick-link" data-nav="room"><span>🏡</span>我的小屋</button>
-            <button class="quick-link" data-nav="badges"><span>🏅</span>成长勋章</button>
-            <button class="quick-link" id="btn-shop"><span>🛒</span>森林商店</button>
           </div>
         </aside>
       </div>
@@ -133,12 +136,15 @@
         <span class="badge-count" id="stage-badge">按顺序解锁</span>
       </div>
       <div class="stage-hero" id="stage-hero">
-        <div class="stage-hero-icon" id="stage-icon">🔢</div>
-        <div class="stage-hero-main">
-          <b id="stage-name-title">数字乐园</b>
-          <small id="stage-tag">数一数 · 认数字</small>
-          <div class="stage-hero-bar"><i id="stage-progress-fill"></i></div>
-          <span class="stage-hero-meta" id="stage-summary">已完成 0/6 个阶段</span>
+        <div class="subject-tabs" id="subject-tabs" role="group" aria-label="切换子模块"></div>
+        <div class="stage-hero-body">
+          <div class="stage-hero-icon" id="stage-icon">🔢</div>
+          <div class="stage-hero-main">
+            <b id="stage-name-title">数字乐园</b>
+            <small id="stage-tag">数一数 · 认数字</small>
+            <div class="stage-hero-bar"><i id="stage-progress-fill"></i></div>
+            <span class="stage-hero-meta" id="stage-summary">已完成 0/6 个阶段</span>
+          </div>
         </div>
       </div>
       <p class="stage-tip">从第 1 关开始，通过后自动解锁下一关；每关都能反复练习哦～</p>
@@ -146,7 +152,7 @@
         <span class="atlas-banner-icon">📚</span>
         <span class="atlas-banner-main">
           <b>知识总表</b>
-          <small>数字表、字母表、加减乘除表、拼音表，一次看全</small>
+          <small>数字、字母、拼音、汉字、图形、自然百科，一次看全</small>
         </span>
         <span class="atlas-banner-go">查看 →</span>
       </button>
@@ -158,14 +164,14 @@
       <div class="page-head">
         <button class="icon-btn" data-nav="home">←</button>
         <h2>闯关大冒险</h2>
-        <span class="badge-count" id="map-count">0/12</span>
+        <span class="badge-count" id="map-count">0/22</span>
       </div>
       <div class="map-hero">
         <div class="map-hero-main">
           <b id="map-next-name">下一关：数字草地</b>
           <small id="map-next-sub">答对 4 题就能过关，加油！</small>
         </div>
-        <div class="map-hero-stars" id="map-stars">⭐ 0/36</div>
+        <div class="map-hero-stars" id="map-stars">⭐ 0/66</div>
       </div>
       <div class="map-wrap">
         <div class="map-path" id="map-path"></div>
@@ -176,7 +182,20 @@
     </section>
 
     <!-- 游戏页 -->
-    <section id="screen-game" class="screen" aria-label="答题">
+    <section id="screen-game" class="screen" aria-label="答题" data-scene="numbers">
+      <div class="level-scene" aria-hidden="true">
+        <div class="scene-deco" id="scene-deco"></div>
+      </div>
+      <div class="quest-intro" id="quest-intro" hidden>
+        <div class="quest-card">
+          <div class="quest-pet" id="quest-pet" aria-hidden="true"></div>
+          <span class="quest-tag" id="quest-tag">🐾 小龙猫的任务</span>
+          <p class="quest-line" id="quest-line"></p>
+          <div class="quest-steps" id="quest-steps"></div>
+          <button class="quest-go" id="quest-go" type="button">出发啦 →</button>
+          <span class="quest-skip">轻点一下，马上开始</span>
+        </div>
+      </div>
       <div class="game-head">
         <button class="icon-btn" id="btn-quit" type="button" title="结束本局" aria-label="结束本局">✕</button>
         <div class="game-head-mid">
@@ -186,7 +205,13 @@
         <div class="game-score" id="game-score" aria-live="polite">✅ 0</div>
       </div>
       <div class="combo" id="game-combo" aria-live="polite"></div>
-      <div class="q-card" id="q-card">
+      <div class="q-card" id="q-card" tabindex="-1">
+        <div class="q-guide" id="q-guide">
+          <span class="q-guide-pet" id="q-guide-pet" aria-hidden="true"></span>
+          <span class="q-guide-icon" id="q-guide-icon">👂</span>
+          <span class="q-guide-line" id="q-guide-text"></span>
+          <button class="q-guide-say" id="q-guide-say" type="button" aria-label="再听一遍题目">🔊</button>
+        </div>
         <h3 class="q-title" id="q-title"></h3>
         <div class="q-visual" id="q-visual"></div>
         <button class="listen-btn" id="btn-listen" type="button">🔊 再听一遍</button>
@@ -206,7 +231,9 @@
         <h2 class="result-title" id="result-title">太棒啦！</h2>
         <p class="result-sub" id="result-sub"></p>
         <div class="result-level" id="result-level"></div>
+        <div class="result-next" id="result-next" hidden></div>
         <div class="result-stats" id="result-stats"></div>
+        <div class="result-review" id="result-review" hidden></div>
         <div class="result-rewards" id="result-rewards"></div>
         <div class="result-actions">
           <button class="btn btn-green" id="btn-again">再玩一次</button>
@@ -221,16 +248,59 @@
       <div class="page-head">
         <button class="icon-btn" data-nav="home">←</button>
         <h2>我的小屋</h2>
+        <button class="icon-btn" id="btn-room-plan" type="button" aria-label="小屋心愿">💫</button>
         <button class="icon-btn" id="btn-room-shop">🛒</button>
       </div>
       <div class="room" id="room-bg">
         <div class="room-sky"></div>
         <div class="room-floor"></div>
+        <div class="room-fx" id="room-fx"></div>
         <div class="room-decor" id="room-decor"></div>
         <div class="room-pet" id="room-pet"></div>
-        <div class="room-speech" id="room-speech"></div>
+        <div class="room-burst" id="room-burst"></div>
+        <div class="room-speech" id="room-speech">
+          <span id="room-speech-text"></span>
+          <button class="room-tip-go" id="room-tip-go" type="button" hidden>去玩</button>
+        </div>
+        <div class="room-wish-pop" id="room-wish-pop"></div>
       </div>
-      <p class="room-tip">拖动装饰可以随心摆放，点一点装饰和小龙猫，它们都会回应你～</p>
+      <div class="room-care" id="room-care">
+        <div class="rcare-top">
+          <span class="rcare-face" id="rcare-face">🐾</span>
+          <span class="rcare-info">
+            <b id="rcare-title">小龙猫 · Lv.1</b>
+            <small id="rcare-days">一起第 1 天 · 心情不错</small>
+          </span>
+          <span class="rcare-acts">
+            <button class="rcare-act" data-room-care="feed" type="button"><span>🍎</span><small>喂食</small></button>
+            <button class="rcare-act" data-room-care="bath" type="button"><span>🛁</span><small>洗澡</small></button>
+            <button class="rcare-act" data-room-care="play" type="button"><span>🎾</span><small>玩耍</small></button>
+          </span>
+        </div>
+        <div class="rcare-bars">
+          <span class="rcare-bar k-hunger"><i>🍎</i><span class="rcare-track"><b id="rcare-hunger"></b></span></span>
+          <span class="rcare-bar k-mood"><i>💗</i><span class="rcare-track"><b id="rcare-mood"></b></span></span>
+          <span class="rcare-bar k-clean"><i>🫧</i><span class="rcare-track"><b id="rcare-clean"></b></span></span>
+        </div>
+      </div>
+      <div class="room-hud">
+        <button class="room-wish" id="room-wish-card" type="button">
+          <span class="rw-ico" id="rw-ico"></span>
+          <span class="rw-main">
+            <b id="rw-title">今日心愿</b>
+            <span class="rw-sub" id="rw-sub"></span>
+            <span class="rw-pips" id="rw-pips"></span>
+          </span>
+          <span class="rw-go" id="rw-go">去布置</span>
+        </button>
+        <button class="room-comfort" id="room-comfort" type="button">
+          <span class="rc-stars" id="rc-stars"></span>
+          <span class="rc-num" id="rc-num"></span>
+          <span class="rc-bar"><i id="rc-fill"></i></span>
+          <span class="rc-tip" id="rc-tip"></span>
+        </button>
+      </div>
+      <p class="room-tip">小龙猫会自己在屋里散步、玩玩具，还可以把它拖到你喜欢的位置；点一点它，它就会回应你～</p>
       <h3 class="sub-title">我的收藏</h3>
       <div class="inventory" id="inventory"></div>
     </section>
@@ -256,14 +326,16 @@
       <div class="atlas-body" id="atlas-body"></div>
     </section>
 
-    <!-- 小游戏乐园：先选知识，再选玩法 -->
+    <!-- 小游戏乐园：可先选知识，也可直接混合挑战 -->
     <section id="screen-arcade" class="screen">
       <div class="page-head">
         <button class="icon-btn" data-nav="home">←</button>
         <h2>小游戏乐园</h2>
-        <span class="badge-count">选知识 · 选玩法</span>
+        <span class="badge-count">混合挑战 · 选玩法</span>
       </div>
-      <p class="arcade-lead">同一个知识点，可以放进不同的游戏里玩。</p>
+      <p class="arcade-lead">直接玩「混合挑战」，每道题都会换一门知识；也可以先挑一个知识点。</p>
+      <div class="arcade-daily" id="arcade-daily"></div>
+      <div class="sticker-wall" id="sticker-wall"></div>
       <div class="arcade-subjects" id="arcade-subjects"></div>
       <div class="arcade-grid" id="arcade-grid"></div>
       <p class="arcade-tip" id="arcade-tip"></p>
@@ -286,6 +358,152 @@
       <div class="mini-result" id="mini-result"></div>
     </section>
 
+    <!-- 家长中心（独立页面，不受弹窗宽度限制） -->
+    <section id="screen-parent" class="screen">
+      <div class="page-head">
+        <button class="icon-btn" data-nav="home" type="button" title="返回乐园" aria-label="返回乐园">←</button>
+        <h2>家长中心</h2>
+        <span class="badge-count">仅家长可见</span>
+      </div>
+
+      <!-- 家长锁：未解锁时只显示输入框 -->
+      <div class="pin-gate" id="pin-gate">
+        <p class="pin-title">请输入 4 位家长密码</p>
+        <p class="pin-hint">初始密码 1234，进入后可修改或清除</p>
+        <div class="pin-dots" id="pin-dots" aria-live="polite"></div>
+        <div class="pin-pad" id="pin-pad"></div>
+        <p class="pin-tip" id="pin-tip"></p>
+      </div>
+
+      <div class="parent-body" id="parent-body">
+        <div class="parent-col">
+          <div class="parent-summary" id="parent-summary"></div>
+
+          <section class="parent-card">
+            <h4>本周学习计划</h4>
+            <div class="week-plan" id="parent-plan"></div>
+          </section>
+
+          <section class="parent-card">
+            <h4>近 7 天学习趋势</h4>
+            <div class="trend" id="parent-trend"></div>
+          </section>
+
+          <section class="parent-card">
+            <h4>各科掌握度</h4>
+            <div class="report-list" id="report-list"></div>
+            <p class="parent-advice" id="parent-advice"></p>
+          </section>
+
+          <section class="parent-card">
+            <h4>知识点掌握度</h4>
+            <div class="mastery-list" id="parent-mastery"></div>
+          </section>
+
+          <section class="parent-card">
+            <h4>错题分布</h4>
+            <div class="wrong-grade" id="parent-wrong"></div>
+            <div class="data-row">
+              <button class="btn btn-green btn-sm" id="btn-sheet" type="button">生成练习纸</button>
+              <span class="card-sub" id="sheet-tip">把错题排成一张纸，打印或存成 PDF</span>
+            </div>
+          </section>
+
+          <section class="parent-card">
+            <h4>每日目标</h4>
+            <div class="goal-row" id="goal-row"></div>
+          </section>
+        </div>
+
+        <div class="parent-col">
+          <section class="parent-card">
+            <h4>孩子档案与难度</h4>
+            <div class="profile-row" id="profile-row"></div>
+            <div class="data-row">
+              <button class="btn btn-ghost btn-sm" id="btn-profile-add" type="button">添加孩子</button>
+              <button class="btn btn-ghost btn-sm" id="btn-profile-rename" type="button">重命名</button>
+            </div>
+            <p class="card-sub">当前孩子的难度档（可在首页做小测评自动匹配）</p>
+            <div class="seg" id="seg-band"></div>
+          </section>
+
+          <section class="parent-card">
+            <h4>屏幕时间</h4>
+            <div class="setting-row">
+              <span>每日时长上限</span>
+              <div class="seg" id="seg-limit"></div>
+            </div>
+            <div class="setting-row">
+              <span>护眼休息提醒</span>
+              <div class="seg" id="seg-rest"></div>
+            </div>
+            <p class="storage-tip" id="screen-tip"></p>
+          </section>
+
+          <section class="parent-card">
+            <h4>内容预览</h4>
+            <div class="content-preview" id="parent-content"></div>
+          </section>
+          <section class="parent-card">
+            <h4>显示与无障碍</h4>
+            <div class="switch-row">
+              <span>深色模式</span>
+              <button class="switch" id="sw-theme" type="button" aria-label="深色模式"><i></i></button>
+            </div>
+            <div class="switch-row">
+              <span>大字号（护眼）</span>
+              <button class="switch" id="sw-font" type="button" aria-label="大字号"><i></i></button>
+            </div>
+            <div class="switch-row">
+              <span>降低动画</span>
+              <button class="switch" id="sw-motion" type="button" aria-label="降低动画"><i></i></button>
+            </div>
+          </section>
+
+          <section class="parent-card">
+            <h4>声音设置</h4>
+            <div class="switch-row">
+              <span>游戏音效</span>
+              <button class="switch" id="sw-sound" type="button" aria-label="游戏音效"><i></i></button>
+            </div>
+            <div class="switch-row">
+              <span>朗读语音</span>
+              <button class="switch" id="sw-voice" type="button" aria-label="朗读语音"><i></i></button>
+            </div>
+            <div class="switch-row">
+              <span>在线语音（标准发音）</span>
+              <button class="switch" id="sw-online" type="button" aria-label="在线语音"><i></i></button>
+            </div>
+            <p class="storage-tip" id="voice-tip"></p>
+          </section>
+
+          <section class="parent-card">
+            <h4>存档与备份</h4>
+            <p class="storage-tip" id="storage-tip"></p>
+            <div class="data-row">
+              <button class="btn btn-blue btn-sm" id="btn-export" type="button">导出存档</button>
+              <button class="btn btn-ghost btn-sm" id="btn-import" type="button">导入存档</button>
+              <button class="btn btn-yellow btn-sm" id="btn-weekly" type="button">导出周报</button>
+              <button class="btn btn-ghost btn-sm" id="btn-share" type="button">生成分享图</button>
+              <input type="file" id="import-file" accept="application/json,.json" hidden>
+            </div>
+            <div class="data-row">
+              <button class="btn btn-ghost btn-sm" id="btn-pin" type="button">设置家长密码</button>
+              <button class="btn btn-ghost btn-sm" id="btn-restore" type="button">恢复上一次存档</button>
+            </div>
+          </section>
+
+          <section class="parent-card parent-danger">
+            <h4>清空数据</h4>
+            <div class="danger-row">
+              <button class="btn btn-ghost btn-sm" id="btn-reset" type="button">清空学习记录</button>
+              <span class="danger-tip" id="reset-tip"></span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -305,84 +523,14 @@
   </div>
 </div>
 
-<!-- 家长中心 -->
-<div class="modal" id="parent-modal" role="dialog" aria-modal="true" aria-labelledby="parent-title">
-  <div class="modal-card parent-card">
+<!-- 小屋心愿 -->
+<div class="modal" id="room-modal" role="dialog" aria-modal="true" aria-labelledby="room-panel-title">
+  <div class="modal-card room-card">
     <div class="modal-head">
-      <h3 id="parent-title">👨‍👩‍👧 家长中心</h3>
-      <button class="icon-btn modal-close" data-close="parent-modal" type="button" aria-label="关闭家长中心">✕</button>
+      <h3 id="room-panel-title">💫 小屋心愿</h3>
+      <button class="icon-btn modal-close" data-close="room-modal" type="button" aria-label="关闭">✕</button>
     </div>
-
-    <!-- 家长锁：未解锁时只显示输入框 -->
-    <div class="pin-gate" id="pin-gate">
-      <p class="pin-title">请输入 4 位家长密码</p>
-      <div class="pin-dots" id="pin-dots" aria-live="polite"></div>
-      <div class="pin-pad" id="pin-pad"></div>
-      <p class="pin-tip" id="pin-tip"></p>
-    </div>
-
-    <div class="parent-body" id="parent-body">
-      <div class="parent-summary" id="parent-summary"></div>
-
-      <h4>近 7 天学习趋势</h4>
-      <div class="trend" id="parent-trend"></div>
-
-      <h4>各科掌握度</h4>
-      <div class="report-list" id="report-list"></div>
-      <p class="parent-advice" id="parent-advice"></p>
-
-      <h4>错题分布</h4>
-      <div class="wrong-grade" id="parent-wrong"></div>
-
-      <h4>每日目标</h4>
-      <div class="goal-row" id="goal-row"></div>
-
-      <h4>显示与无障碍</h4>
-      <div class="switch-row">
-        <span>深色模式</span>
-        <button class="switch" id="sw-theme" type="button" aria-label="深色模式"><i></i></button>
-      </div>
-      <div class="switch-row">
-        <span>大字号（护眼）</span>
-        <button class="switch" id="sw-font" type="button" aria-label="大字号"><i></i></button>
-      </div>
-      <div class="switch-row">
-        <span>降低动画</span>
-        <button class="switch" id="sw-motion" type="button" aria-label="降低动画"><i></i></button>
-      </div>
-
-      <h4>设置</h4>
-      <div class="switch-row">
-        <span>游戏音效</span>
-        <button class="switch" id="sw-sound" type="button" aria-label="游戏音效"><i></i></button>
-      </div>
-      <div class="switch-row">
-        <span>朗读语音</span>
-        <button class="switch" id="sw-voice" type="button" aria-label="朗读语音"><i></i></button>
-      </div>
-      <div class="switch-row">
-        <span>在线语音（标准发音）</span>
-        <button class="switch" id="sw-online" type="button" aria-label="在线语音"><i></i></button>
-      </div>
-      <p class="storage-tip" id="voice-tip"></p>
-
-      <h4>存档与备份</h4>
-      <p class="storage-tip" id="storage-tip"></p>
-      <div class="data-row">
-        <button class="btn btn-blue btn-sm" id="btn-export" type="button">导出存档</button>
-        <button class="btn btn-ghost btn-sm" id="btn-import" type="button">导入存档</button>
-        <button class="btn btn-yellow btn-sm" id="btn-weekly" type="button">导出周报</button>
-        <input type="file" id="import-file" accept="application/json,.json" hidden>
-      </div>
-      <div class="data-row">
-        <button class="btn btn-ghost btn-sm" id="btn-pin" type="button">设置家长密码</button>
-        <button class="btn btn-ghost btn-sm" id="btn-restore" type="button">恢复上一次存档</button>
-      </div>
-      <div class="danger-row">
-        <button class="btn btn-ghost btn-sm" id="btn-reset" type="button">清空学习记录</button>
-        <span class="danger-tip" id="reset-tip"></span>
-      </div>
-    </div>
+    <div class="room-panel" id="room-panel"></div>
   </div>
 </div>
 
@@ -479,6 +627,31 @@
   </div>
 </div>
 
+<div class="modal" id="rest-modal" role="dialog" aria-modal="true" aria-labelledby="rest-title">
+  <div class="modal-card rest-card">
+    <div class="rest-pet" id="rest-pet"></div>
+    <h3 class="rest-title" id="rest-title">休息一下小眼睛</h3>
+    <p class="rest-text" id="rest-text"></p>
+    <p class="rest-left" id="rest-left"></p>
+    <button class="btn btn-green intro-btn" id="btn-rest-ok" type="button">继续学习</button>
+  </div>
+</div>
+
+<!-- 错题练习纸 -->
+<div class="modal" id="sheet-modal" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="modal-card sheet-card">
+    <div class="modal-head">
+      <h3 id="sheet-title">错题练习纸</h3>
+      <button class="icon-btn modal-close" data-close="sheet-modal" type="button" aria-label="关闭">✕</button>
+    </div>
+    <div class="sheet-scroll" id="sheet-body"></div>
+    <div class="sheet-actions">
+      <button class="btn btn-green" id="btn-sheet-print" type="button">打印 / 存为 PDF</button>
+      <button class="btn btn-ghost" id="btn-sheet-close" type="button">关闭</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="fx-layer" aria-hidden="true"></div>
 <div id="live" class="sr-only" aria-live="polite"></div>
@@ -493,6 +666,7 @@
 <script src="assets/js/emoji-map.js"></script>
 <script src="assets/js/art.js"></script>
 <script src="assets/js/storage.js"></script>
+<script src="assets/js/cat-voice.js"></script>
 <script src="assets/js/audio.js"></script>
 <script src="assets/js/pet.js"></script>
 <script src="assets/js/atlas.js"></script>

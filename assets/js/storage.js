@@ -3,14 +3,18 @@ const SaveStore = (() => {
   const KEY = 'xiaolongmao_save';
   const BACKUP_KEYS = ['xiaolongmao_save_b1', 'xiaolongmao_save_b2'];
   const LEGACY_KEYS = ['saikid_save', 'saikid_save_v1'];
+  const SLOT_KEY = 'xiaolongmao_slot';       // 当前使用哪个孩子的档案
+  const SLOT_LIST = 'xiaolongmao_profiles';  // 档案列表 [{ id, name, at }]
+  const DEFAULT_SLOT = 'p1';
   const APP_ID = 'xiaolongmao';
-  const VERSION = 3;
+  const VERSION = 4;
   const WRITE_DELAY = 320;
 
   let timer = null;
   let pending = null;
   let available = probe();
   let lastLoadInfo = { source: 'new', at: 0 };
+  let slot = readItem(SLOT_KEY) || DEFAULT_SLOT;
 
   function probe() {
     try {
@@ -27,15 +31,50 @@ const SaveStore = (() => {
     try { return localStorage.getItem(k); } catch (e) { return null; }
   }
 
+  // 第一个档案沿用老键名，保证升级后原存档还在
+  function suffix(id) { return id === DEFAULT_SLOT ? '' : '@' + id; }
+  function mainKey(id) { return KEY + suffix(id || slot); }
+  function backupKeys(id) { return BACKUP_KEYS.map(k => k + suffix(id || slot)); }
+
+  function profiles() {
+    try {
+      const list = JSON.parse(readItem(SLOT_LIST) || 'null');
+      if (Array.isArray(list)) {
+        const ok = list.filter(p => p && typeof p.id === 'string' && p.id);
+        if (ok.length) return ok;
+      }
+    } catch (e) { /* 忽略 */ }
+    return [{ id: DEFAULT_SLOT, name: '宝贝 1', at: 0 }];
+  }
+
+  function setProfiles(list) {
+    try {
+      localStorage.setItem(SLOT_LIST, JSON.stringify(list || []));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function currentSlot() { return slot; }
+
+  function switchSlot(id) {
+    if (!id || id === slot) return false;
+    flush();
+    try { localStorage.setItem(SLOT_KEY, id); } catch (e) { return false; }
+    slot = id;
+    return true;
+  }
+
   function readRaw() {
     if (!available) return null;
     try {
-      const own = readItem(KEY);
+      const own = readItem(mainKey());
       if (own) return own;
-      // 兼容改名前的旧存档（saikid_save / saikid_save_v1）
-      for (const k of LEGACY_KEYS) {
-        const old = readItem(k);
-        if (old) return old;
+      // 兼容改名前的旧存档（saikid_save / saikid_save_v1），只对第一个档案生效
+      if (slot === DEFAULT_SLOT) {
+        for (const k of LEGACY_KEYS) {
+          const old = readItem(k);
+          if (old) return old;
+        }
       }
       return null;
     } catch (e) {
@@ -55,11 +94,12 @@ const SaveStore = (() => {
   // 写入前把现有主档轮转成 b1 / b2，主档损坏时还能回到上一份
   function rotateBackups() {
     try {
-      const cur = readItem(KEY);
+      const bk = backupKeys();
+      const cur = readItem(mainKey());
       if (!cur) return;
-      const b1 = readItem(BACKUP_KEYS[0]);
-      if (b1 && b1 !== cur) localStorage.setItem(BACKUP_KEYS[1], b1);
-      localStorage.setItem(BACKUP_KEYS[0], cur);
+      const b1 = readItem(bk[0]);
+      if (b1 && b1 !== cur) localStorage.setItem(bk[1], b1);
+      localStorage.setItem(bk[0], cur);
     } catch (e) { /* 忽略 */ }
   }
 
@@ -67,8 +107,8 @@ const SaveStore = (() => {
     if (!available || !state) return false;
     try {
       rotateBackups();
-      localStorage.setItem(KEY, JSON.stringify(state));
-      clearLegacy();
+      localStorage.setItem(mainKey(), JSON.stringify(state));
+      if (slot === DEFAULT_SLOT) clearLegacy();
       return true;
     } catch (e) {
       // 配额不足或无痕模式：降级为仅本次会话有效
@@ -100,7 +140,7 @@ const SaveStore = (() => {
     let parsed = parse(readRaw());
     lastLoadInfo = { source: 'new', at: Date.now() };
     if (!parsed) {
-      for (const k of BACKUP_KEYS) {
+      for (const k of backupKeys()) {
         const bak = parse(readItem(k));
         if (bak) {
           parsed = bak;
@@ -135,17 +175,20 @@ const SaveStore = (() => {
     clearTimeout(timer);
     pending = null;
     try {
-      localStorage.removeItem(KEY);
-      BACKUP_KEYS.forEach(k => localStorage.removeItem(k));
-      clearLegacy();
+      localStorage.removeItem(mainKey());
+      backupKeys().forEach(k => localStorage.removeItem(k));
+      if (slot === DEFAULT_SLOT) clearLegacy();
     } catch (e) { /* 忽略 */ }
   }
 
   function usage() {
     try {
-      let total = (readItem(KEY) || '').length;
-      BACKUP_KEYS.forEach(k => { total += (readItem(k) || '').length; });
-      if (!total) {
+      let total = 0;
+      profiles().forEach(p => {
+        total += (readItem(mainKey(p.id)) || '').length;
+        backupKeys(p.id).forEach(k => { total += (readItem(k) || '').length; });
+      });
+      if (!total && slot === DEFAULT_SLOT) {
         for (const k of LEGACY_KEYS) total += (readItem(k) || '').length;
       }
       return total;
@@ -156,7 +199,7 @@ const SaveStore = (() => {
 
   // 备份是否可用（家长中心「恢复上一份存档」按钮据此禁用）
   function backupInfo() {
-    const list = BACKUP_KEYS.map(k => {
+    const list = backupKeys().map(k => {
       const raw = readItem(k);
       let at = '';
       try {
@@ -170,16 +213,45 @@ const SaveStore = (() => {
 
   // 用最近一份可用备份覆盖主档；返回是否成功
   function restoreBackup() {
-    for (const k of BACKUP_KEYS) {
+    for (const k of backupKeys()) {
       const raw = readItem(k);
       if (!raw) continue;
       try {
-        localStorage.setItem(KEY, raw);
+        localStorage.setItem(mainKey(), raw);
         localStorage.removeItem(k);
         return true;
       } catch (e) { /* 试下一份 */ }
     }
     return false;
+  }
+
+  // 新建一个孩子的档案（不自动切换）
+  function addSlot(name) {
+    const list = profiles();
+    let n = 1;
+    let id = 'p' + (list.length + 1);
+    while (list.some(p => p.id === id)) { n++; id = 'p' + (list.length + n); }
+    list.push({ id, name: name || ('宝贝 ' + (list.length + 1)), at: Date.now() });
+    return setProfiles(list) ? id : '';
+  }
+
+  // 删除某个档案的数据（不能删最后一个）
+  function removeSlot(id) {
+    const list = profiles();
+    if (list.length <= 1 || !list.some(p => p.id === id)) return false;
+    try {
+      localStorage.removeItem(mainKey(id));
+      backupKeys(id).forEach(k => localStorage.removeItem(k));
+    } catch (e) { /* 忽略 */ }
+    return setProfiles(list.filter(p => p.id !== id));
+  }
+
+  function renameSlot(id, name) {
+    const list = profiles();
+    const p = list.find(x => x.id === id);
+    if (!p || !name) return false;
+    p.name = String(name).slice(0, 12);
+    return setProfiles(list);
   }
 
   function exportText(state) {
@@ -237,6 +309,12 @@ const SaveStore = (() => {
     exportText,
     importText,
     isAvailable: () => available,
-    lastLoad: () => lastLoadInfo
+    lastLoad: () => lastLoadInfo,
+    profiles,
+    currentSlot,
+    switchSlot,
+    addSlot,
+    removeSlot,
+    renameSlot
   };
 })();
