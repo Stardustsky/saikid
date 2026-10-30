@@ -1,0 +1,354 @@
+/* ============================================================
+   手机端布局层（仅窄屏生效，桌面 / 平板保持原样）
+   目标：单手可达、触控目标 ≥ 48px、底部常驻 Tab、答题一屏不滚
+   ============================================================ */
+
+/* 底部导航默认不参与桌面布局 */
+.tabbar { display: none; }
+
+@media (max-width: 820px) {
+
+  :root { --tab-h: 58px; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    /* 触屏：去掉点击高亮，拖动时不要选中文字 */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    overscroll-behavior-y: contain;
+  }
+  input, textarea { -webkit-user-select: text; user-select: text; }
+
+  /* 给底部 Tab 让出空间，避免最后一屏内容被挡住 */
+  #app {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    max-width: none;
+    padding: 6px 12px 20px;
+  }
+  .screen.active { flex: 1 0 auto; }
+
+  /* ---------------- 顶部状态栏：压成单行 ---------------- */
+
+  .hud {
+    flex-wrap: nowrap;
+    max-width: none;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+  /* 首页 / 小屋 / 勋章 / 小游戏都已在底部 Tab，顶部不再重复 */
+  #btn-go-home,
+  .hud-shortcuts #btn-home-mini,
+  .hud-shortcuts .hud-chip[data-nav="room"],
+  .hud-shortcuts .hud-chip[data-nav="badges"] { display: none; }
+
+  /* base.css 在 720px 以下把快捷入口折成独立一行，手机端要改回同一行 */
+  .hud-shortcuts { order: 0; flex: none; justify-content: flex-end; }
+  .hud-actions { flex: none; }
+
+  .hud-pills { flex: 0 1 auto; gap: 6px; margin-right: auto; }
+  .pill {
+    height: 34px;
+    gap: 4px;
+    padding: 0 10px;
+    font-size: 13.5px;
+  }
+  .pill-icon { font-size: 15px; }
+  .hud-btn,
+  .hud-chip { width: 40px; height: 40px; border-radius: 13px; font-size: 18px; }
+  .hud-actions,
+  .hud-shortcuts { gap: 6px; }
+
+  /* 320~360 的超窄屏：再收一点，保证状态栏不换行 */
+  @media (max-width: 360px) {
+    .hud { padding: 6px 8px; gap: 5px; }
+    .pill { padding: 0 8px; font-size: 12.5px; }
+    .hud-btn,
+    .hud-chip { width: 36px; height: 36px; border-radius: 12px; font-size: 17px; }
+  }
+
+  /* ---------------- 底部主导航 ---------------- */
+
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    padding: 5px 6px calc(3px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, .94);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-top: 1.5px solid rgba(120, 150, 120, .16);
+    box-shadow: 0 -6px 22px rgba(60, 90, 70, .07);
+  }
+  .tabbar-item {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: #8a978c;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    transition: color .18s, background .18s;
+  }
+  .tabbar-item .tab-icon {
+    font-size: 21px;
+    line-height: 1;
+    transition: transform .18s cubic-bezier(.3, 1.4, .5, 1);
+  }
+  .tabbar-item:active { background: #f1f8e8; }
+
+  /* 当前所在的 Tab：顶部小横条 + 主题色 */
+  body[data-screen="home"] .tabbar-item[data-nav="home"],
+  body[data-screen="map"] .tabbar-item[data-nav="map"],
+  body[data-screen="arcade"] .tabbar-item[data-nav="arcade"],
+  body[data-screen="room"] .tabbar-item[data-nav="room"],
+  body[data-screen="badges"] .tabbar-item[data-nav="badges"] { color: var(--purple); }
+
+  body[data-screen="home"] .tabbar-item[data-nav="home"] .tab-icon,
+  body[data-screen="map"] .tabbar-item[data-nav="map"] .tab-icon,
+  body[data-screen="arcade"] .tabbar-item[data-nav="arcade"] .tab-icon,
+  body[data-screen="room"] .tabbar-item[data-nav="room"] .tab-icon,
+  body[data-screen="badges"] .tabbar-item[data-nav="badges"] .tab-icon {
+    transform: translateY(-1px) scale(1.1);
+  }
+
+  body[data-screen="home"] .tabbar-item[data-nav="home"]::before,
+  body[data-screen="map"] .tabbar-item[data-nav="map"]::before,
+  body[data-screen="arcade"] .tabbar-item[data-nav="arcade"]::before,
+  body[data-screen="room"] .tabbar-item[data-nav="room"]::before,
+  body[data-screen="badges"] .tabbar-item[data-nav="badges"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 18px;
+    height: 3px;
+    margin-left: -9px;
+    border-radius: 0 0 3px 3px;
+    background: var(--purple);
+  }
+
+  /* 答题 / 小游戏 / 家长中心：全屏专注，收起底部 Tab */
+  body[data-screen="game"] .tabbar,
+  body[data-screen="result"] .tabbar,
+  body[data-screen="minigame"] .tabbar,
+  body[data-screen="parent"] .tabbar { display: none; }
+
+  body[data-screen="game"] #app,
+  body[data-screen="result"] #app,
+  body[data-screen="minigame"] #app,
+  body[data-screen="parent"] #app { padding-bottom: 0; }
+
+  /* ---------------- 首页 · 小龙猫 ---------------- */
+
+  .hero { padding: 12px; border-radius: 22px; }
+  .hero-main { display: flex; flex-direction: column; gap: 10px; }
+
+  /* 气泡在左、宠物在右，把最高的竖直空间留给养护按钮 */
+  .pet-zone {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 104px;
+    grid-template-areas:
+      "speech pet"
+      "name   pet";
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 4px;
+    width: 100%;
+  }
+  .speech {
+    grid-area: speech;
+    max-width: none;
+    padding: 8px 26px 8px 11px;
+    border-radius: 14px;
+    font-size: 12.5px;
+    text-align: left;
+  }
+  .speech::after {
+    left: auto;
+    right: 26px;
+  }
+  .pet-stage { grid-area: pet; width: 104px; height: 96px; }
+  .pet-wrap,
+  .pet-wrap[data-form="baby"],
+  .pet-wrap[data-form="mini"],
+  .pet-wrap[data-form="small"],
+  .pet-wrap[data-form="big"],
+  .pet-wrap[data-form="guard"],
+  .pet-wrap[data-form="king"],
+  .pet-wrap[data-form="myth"] { --pet-size: 96px; }
+  .pet-name {
+    grid-area: name;
+    justify-self: start;
+    padding: 3px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .care-zone { padding: 11px 12px; border-radius: 18px; gap: 7px; }
+  .care-head b { font-size: 14.5px; }
+  .care-head small { font-size: 11px; }
+  .care-row { gap: 8px; }
+  .care-ico { width: 24px; font-size: 16px; }
+  .care-num { width: 26px; font-size: 12px; }
+  .bar { height: 11px; }
+  .care-actions { gap: 7px; }
+  .care-btn { height: 56px; border-radius: 15px; }
+  .care-btn span { font-size: 19px; }
+  .care-btn b { font-size: 12px; }
+  .care-btn small { font-size: 10px; }
+
+  /* ---------------- 首页 · 学科入口（2 列紧凑卡） ---------------- */
+
+  .section-title {
+    margin: 16px 0 10px;
+    padding-left: 2px;
+    font-size: 17px;
+  }
+  .home-cols { margin-top: 12px; gap: 12px; }
+  .subjects { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+  .subject-card {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 9px;
+    padding: 11px 11px 10px;
+    border-radius: 17px;
+  }
+  .subject-icon { width: 38px; height: 38px; border-radius: 12px; font-size: 21px; }
+  .subject-name { font-size: 14px; }
+  .subject-meta { font-size: 10px; }
+  .subject-go { display: none; }
+
+  /* 学科卡为奇数时最后一张占满整行 */
+  .subjects > .subject-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+  .map-banner { padding: 12px 13px; border-radius: 18px; gap: 10px; margin-top: 12px; }
+  .banner-ico { font-size: 24px; }
+  .banner-main b { font-size: 15px; }
+  .banner-main small { font-size: 11px; }
+  .banner-go { padding: 7px 11px; font-size: 11.5px; }
+
+  .placement-card,
+  .daily-card { border-radius: 18px; }
+
+  /* ---------------- 二级页通用 ---------------- */
+
+  .page-head { gap: 10px; padding: 2px 0 10px; }
+  .page-head h2 { font-size: 18px; }
+  .icon-btn { width: 40px; height: 40px; border-radius: 13px; font-size: 17px; }
+
+  .stage-hero { border-radius: 20px; }
+
+  /* 小游戏 / 小屋 / 勋章：卡片两列变一列更易点 */
+  .arcade-grid { gap: 10px; }
+  .arcade-subjects { gap: 8px; }
+
+  /* ---------------- 答题页：一屏放下题目与选项 ---------------- */
+
+  #screen-game.active {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 120px);
+  }
+  .game-head { gap: 10px; padding: 2px 0 8px; }
+  .game-stage { font-size: 13px; }
+  .game-score { font-size: 14px; padding: 5px 9px; }
+  .progress { height: 10px; }
+
+  .q-card {
+    margin-top: 2px;
+    padding: 14px 13px 12px;
+    border-radius: 20px;
+  }
+  .q-title { font-size: 17px; }
+  .q-visual { min-height: 72px; gap: 8px; margin-top: 8px; }
+  .q-guide { font-size: 12px; }
+
+  .options {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+    margin-top: auto;
+    padding-top: 12px;
+  }
+  .option {
+    min-height: 66px;
+    padding: 8px;
+    border-radius: 17px;
+    font-size: 24px;
+  }
+  .practice-tools { gap: 8px; margin-top: 8px; }
+  .tool-btn { min-height: 46px; font-size: 13px; }
+  .game-tip { margin-top: 6px; font-size: 12px; }
+
+  /* ---------------- 结算页 ---------------- */
+
+  .result-card { padding: 20px 15px 18px; border-radius: 22px; }
+  .result-title { font-size: 20px; }
+  .result-actions { gap: 8px; }
+  .result-actions .btn { min-height: 48px; }
+
+  /* ---------------- 弹窗：从底部升起的抽屉 ---------------- */
+
+  .modal { align-items: flex-end; padding: 0; }
+  .modal-card {
+    max-width: none;
+    max-height: 88dvh;
+    padding: 16px 15px calc(16px + env(safe-area-inset-bottom, 0px));
+    border-radius: 24px 24px 0 0;
+    transform: translateY(28px);
+  }
+  .modal.open .modal-card { transform: none; }
+  .modal-head h3 { font-size: 17px; }
+  .shop-item { padding: 10px; }
+
+  /* ---------------- 家长中心 ---------------- */
+
+  .parent-body { gap: 12px; }
+  .parent-card { padding: 14px; border-radius: 18px; }
+  .parent-card h4 { font-size: 15px; }
+}
+
+/* 横屏矮屏：进一步压缩竖直空间，保证选项可见 */
+@media (max-width: 820px) and (max-height: 480px) {
+  .pet-stage { height: 78px; }
+  .pet-wrap,
+  .pet-wrap[data-form] { --pet-size: 78px; }
+  .q-visual { min-height: 56px; }
+  .option { min-height: 56px; }
+  .tabbar-item { min-height: 42px; }
+}
+
+/* 深色主题下底部导航跟随卡片配色 */
+:root[data-theme="dark"] .tabbar {
+  background: rgba(32, 44, 38, .95);
+  border-top-color: rgba(255, 255, 255, .08);
+}
+:root[data-theme="dark"] .tabbar-item { color: #93a599; }
+:root[data-theme="dark"] .tabbar-item[data-nav]:hover,
+:root[data-theme="dark"] .tabbar-item:active { background: rgba(255, 255, 255, .05); }

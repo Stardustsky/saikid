@@ -1,0 +1,1505 @@
+/* 小龙猫乐园 · 课程体系、题库与商店数据 */
+const DATA = {
+  // 数数用的小图案
+  countEmojis: ['🍎', '🐣', '⭐', '🎈', '🍓', '🐟', '🌸', '🦋', '🍊', '🐞', '🍭', '🐳',
+    '🍇', '🐼', '🌼', '🧁', '🪁', '🐠', '🍀', '🎨'],
+
+  // 26 个字母 + 例词
+  letters: [
+    { u: 'A', l: 'a', word: 'apple', zh: '苹果', emoji: '🍎' },
+    { u: 'B', l: 'b', word: 'bear', zh: '小熊', emoji: '🐻' },
+    { u: 'C', l: 'c', word: 'cat', zh: '小猫', emoji: '🐱' },
+    { u: 'D', l: 'd', word: 'duck', zh: '鸭子', emoji: '🦆' },
+    { u: 'E', l: 'e', word: 'egg', zh: '鸡蛋', emoji: '🥚' },
+    { u: 'F', l: 'f', word: 'fish', zh: '小鱼', emoji: '🐟' },
+    { u: 'G', l: 'g', word: 'grapes', zh: '葡萄', emoji: '🍇' },
+    { u: 'H', l: 'h', word: 'hat', zh: '帽子', emoji: '👒' },
+    { u: 'I', l: 'i', word: 'ice', zh: '冰块', emoji: '🧊' },
+    { u: 'J', l: 'j', word: 'juice', zh: '果汁', emoji: '🧃' },
+    { u: 'K', l: 'k', word: 'key', zh: '钥匙', emoji: '🔑' },
+    { u: 'L', l: 'l', word: 'lion', zh: '狮子', emoji: '🦁' },
+    { u: 'M', l: 'm', word: 'moon', zh: '月亮', emoji: '🌙' },
+    { u: 'N', l: 'n', word: 'nose', zh: '鼻子', emoji: '👃' },
+    { u: 'O', l: 'o', word: 'orange', zh: '橙子', emoji: '🍊' },
+    { u: 'P', l: 'p', word: 'panda', zh: '熊猫', emoji: '🐼' },
+    { u: 'Q', l: 'q', word: 'queen', zh: '女王', emoji: '👑' },
+    { u: 'R', l: 'r', word: 'rabbit', zh: '兔子', emoji: '🐰' },
+    { u: 'S', l: 's', word: 'sun', zh: '太阳', emoji: '☀️' },
+    { u: 'T', l: 't', word: 'tiger', zh: '老虎', emoji: '🐯' },
+    { u: 'U', l: 'u', word: 'umbrella', zh: '雨伞', emoji: '☂️' },
+    { u: 'V', l: 'v', word: 'violin', zh: '小提琴', emoji: '🎻' },
+    { u: 'W', l: 'w', word: 'whale', zh: '鲸鱼', emoji: '🐳' },
+    { u: 'X', l: 'x', word: 'fox', zh: '狐狸', emoji: '🦊' },
+    { u: 'Y', l: 'y', word: 'yarn', zh: '毛线', emoji: '🧶' },
+    { u: 'Z', l: 'z', word: 'zebra', zh: '斑马', emoji: '🦓' }
+  ],
+
+  // 英文单词：按主题分组，方便分阶段学习（共 188 个）
+  words: [
+    // 动物 30
+    { en: 'cat', zh: '小猫', emoji: '🐱', theme: 'animal' },
+    { en: 'dog', zh: '小狗', emoji: '🐶', theme: 'animal' },
+    { en: 'bird', zh: '小鸟', emoji: '🐦', theme: 'animal' },
+    { en: 'fish', zh: '小鱼', emoji: '🐟', theme: 'animal' },
+    { en: 'bear', zh: '小熊', emoji: '🐻', theme: 'animal' },
+    { en: 'duck', zh: '鸭子', emoji: '🦆', theme: 'animal' },
+    { en: 'frog', zh: '青蛙', emoji: '🐸', theme: 'animal' },
+    { en: 'pig', zh: '小猪', emoji: '🐷', theme: 'animal' },
+    { en: 'cow', zh: '奶牛', emoji: '🐮', theme: 'animal' },
+    { en: 'rabbit', zh: '兔子', emoji: '🐰', theme: 'animal' },
+    { en: 'lion', zh: '狮子', emoji: '🦁', theme: 'animal' },
+    { en: 'tiger', zh: '老虎', emoji: '🐯', theme: 'animal' },
+    { en: 'elephant', zh: '大象', emoji: '🐘', theme: 'animal' },
+    { en: 'mouse', zh: '老鼠', emoji: '🐭', theme: 'animal' },
+    { en: 'horse', zh: '小马', emoji: '🐴', theme: 'animal' },
+    { en: 'panda', zh: '熊猫', emoji: '🐼', theme: 'animal' },
+    { en: 'butterfly', zh: '蝴蝶', emoji: '🦋', theme: 'animal' },
+    { en: 'zebra', zh: '斑马', emoji: '🦓', theme: 'animal' },
+    { en: 'sheep', zh: '小羊', emoji: '🐑', theme: 'animal' },
+    { en: 'chicken', zh: '小鸡', emoji: '🐔', theme: 'animal' },
+    { en: 'squirrel', zh: '松鼠', emoji: '🐿️', theme: 'animal' },
+    { en: 'chick', zh: '鸡宝宝', emoji: '🐣', theme: 'animal' },
+    { en: 'goose', zh: '鹅', emoji: '🦢', theme: 'animal' },
+    { en: 'bug', zh: '小虫子', emoji: '🐛', theme: 'animal' },
+    { en: 'bee', zh: '蜜蜂', emoji: '🐝', theme: 'animal' },
+    { en: 'ant', zh: '蚂蚁', emoji: '🐜', theme: 'animal' },
+    { en: 'wolf', zh: '狼', emoji: '🐺', theme: 'animal' },
+    { en: 'deer', zh: '小鹿', emoji: '🦌', theme: 'animal' },
+    { en: 'turtle', zh: '乌龟', emoji: '🐢', theme: 'animal' },
+    { en: 'dolphin', zh: '海豚', emoji: '🐬', theme: 'animal' },
+    // 食物 25
+    { en: 'apple', zh: '苹果', emoji: '🍎', theme: 'food' },
+    { en: 'banana', zh: '香蕉', emoji: '🍌', theme: 'food' },
+    { en: 'milk', zh: '牛奶', emoji: '🥛', theme: 'food' },
+    { en: 'cake', zh: '蛋糕', emoji: '🍰', theme: 'food' },
+    { en: 'egg', zh: '鸡蛋', emoji: '🥚', theme: 'food' },
+    { en: 'bread', zh: '面包', emoji: '🍞', theme: 'food' },
+    { en: 'rice', zh: '米饭', emoji: '🍚', theme: 'food' },
+    { en: 'water', zh: '水', emoji: '💧', theme: 'food' },
+    { en: 'grapes', zh: '葡萄', emoji: '🍇', theme: 'food' },
+    { en: 'kiwi', zh: '猕猴桃', emoji: '🥝', theme: 'food' },
+    { en: 'strawberry', zh: '草莓', emoji: '🍓', theme: 'food' },
+    { en: 'watermelon', zh: '西瓜', emoji: '🍉', theme: 'food' },
+    { en: 'carrot', zh: '胡萝卜', emoji: '🥕', theme: 'food' },
+    { en: 'cookie', zh: '饼干', emoji: '🍪', theme: 'food' },
+    { en: 'honey', zh: '蜂蜜', emoji: '🍯', theme: 'food' },
+    { en: 'juice', zh: '果汁', emoji: '🧃', theme: 'food' },
+    { en: 'candy', zh: '糖果', emoji: '🍬', theme: 'food' },
+    { en: 'noodle', zh: '面条', emoji: '🍜', theme: 'food' },
+    { en: 'tomato', zh: '番茄', emoji: '🍅', theme: 'food' },
+    { en: 'lemon', zh: '柠檬', emoji: '🍋', theme: 'food' },
+    { en: 'pear', zh: '梨', emoji: '🍐', theme: 'food' },
+    { en: 'peach', zh: '桃子', emoji: '🍑', theme: 'food' },
+    { en: 'corn', zh: '玉米', emoji: '🌽', theme: 'food' },
+    { en: 'mushroom', zh: '蘑菇', emoji: '🍄', theme: 'food' },
+    { en: 'cheese', zh: '奶酪', emoji: '🧀', theme: 'food' },
+    // 身边物品 25
+    { en: 'ball', zh: '皮球', emoji: '⚽', theme: 'item' },
+    { en: 'book', zh: '书本', emoji: '📖', theme: 'item' },
+    { en: 'hat', zh: '帽子', emoji: '👒', theme: 'item' },
+    { en: 'shoe', zh: '鞋子', emoji: '👟', theme: 'item' },
+    { en: 'chair', zh: '椅子', emoji: '🪑', theme: 'item' },
+    { en: 'bed', zh: '小床', emoji: '🛏️', theme: 'item' },
+    { en: 'cup', zh: '杯子', emoji: '🥤', theme: 'item' },
+    { en: 'key', zh: '钥匙', emoji: '🔑', theme: 'item' },
+    { en: 'pencil', zh: '铅笔', emoji: '✏️', theme: 'item' },
+    { en: 'bag', zh: '书包', emoji: '🎒', theme: 'item' },
+    { en: 'clock', zh: '闹钟', emoji: '⏰', theme: 'item' },
+    { en: 'phone', zh: '手机', emoji: '📱', theme: 'item' },
+    { en: 'umbrella', zh: '雨伞', emoji: '☂️', theme: 'item' },
+    { en: 'drum', zh: '小鼓', emoji: '🥁', theme: 'item' },
+    { en: 'kite', zh: '风筝', emoji: '🪁', theme: 'item' },
+    { en: 'balloon', zh: '气球', emoji: '🎈', theme: 'item' },
+    { en: 'gift', zh: '礼物', emoji: '🎁', theme: 'item' },
+    { en: 'map', zh: '地图', emoji: '🗺️', theme: 'item' },
+    { en: 'glasses', zh: '眼镜', emoji: '👓', theme: 'item' },
+    { en: 'brush', zh: '牙刷', emoji: '🪥', theme: 'item' },
+    { en: 'watch', zh: '手表', emoji: '⌚', theme: 'item' },
+    { en: 'scissors', zh: '剪刀', emoji: '✂️', theme: 'item' },
+    { en: 'lamp', zh: '台灯', emoji: '💡', theme: 'item' },
+    { en: 'sock', zh: '袜子', emoji: '🧦', theme: 'item' },
+    { en: 'box', zh: '盒子', emoji: '📦', theme: 'item' },
+    // 大自然 25
+    { en: 'sun', zh: '太阳', emoji: '☀️', theme: 'nature' },
+    { en: 'moon', zh: '月亮', emoji: '🌙', theme: 'nature' },
+    { en: 'star', zh: '星星', emoji: '⭐', theme: 'nature' },
+    { en: 'tree', zh: '大树', emoji: '🌳', theme: 'nature' },
+    { en: 'flower', zh: '花朵', emoji: '🌸', theme: 'nature' },
+    { en: 'cloud', zh: '白云', emoji: '☁️', theme: 'nature' },
+    { en: 'rain', zh: '下雨', emoji: '🌧️', theme: 'nature' },
+    { en: 'sky', zh: '天空', emoji: '🌤️', theme: 'nature' },
+    { en: 'grass', zh: '小草', emoji: '🌿', theme: 'nature' },
+    { en: 'leaf', zh: '叶子', emoji: '🍃', theme: 'nature' },
+    { en: 'mountain', zh: '大山', emoji: '⛰️', theme: 'nature' },
+    { en: 'sea', zh: '大海', emoji: '🌊', theme: 'nature' },
+    { en: 'snow', zh: '雪花', emoji: '❄️', theme: 'nature' },
+    { en: 'wind', zh: '风', emoji: '🌬️', theme: 'nature' },
+    { en: 'rainbow', zh: '彩虹', emoji: '🌈', theme: 'nature' },
+    { en: 'stone', zh: '石头', emoji: '🪨', theme: 'nature' },
+    { en: 'fire', zh: '火', emoji: '🔥', theme: 'nature' },
+    { en: 'forest', zh: '森林', emoji: '🌲', theme: 'nature' },
+    { en: 'seed', zh: '小苗', emoji: '🌱', theme: 'nature' },
+    { en: 'sunset', zh: '晚霞', emoji: '🌇', theme: 'nature' },
+    { en: 'river', zh: '小河', emoji: '🏞️', theme: 'nature' },
+    { en: 'volcano', zh: '火山', emoji: '🌋', theme: 'nature' },
+    { en: 'desert', zh: '沙漠', emoji: '🏜️', theme: 'nature' },
+    { en: 'ice', zh: '冰块', emoji: '🧊', theme: 'nature' },
+    { en: 'island', zh: '小岛', emoji: '🏝️', theme: 'nature' },
+    // 车车与家 16
+    { en: 'car', zh: '汽车', emoji: '🚗', theme: 'vehicle' },
+    { en: 'bus', zh: '公交车', emoji: '🚌', theme: 'vehicle' },
+    { en: 'train', zh: '火车', emoji: '🚂', theme: 'vehicle' },
+    { en: 'bike', zh: '自行车', emoji: '🚲', theme: 'vehicle' },
+    { en: 'plane', zh: '飞机', emoji: '✈️', theme: 'vehicle' },
+    { en: 'boat', zh: '小船', emoji: '⛵', theme: 'vehicle' },
+    { en: 'house', zh: '房子', emoji: '🏠', theme: 'vehicle' },
+    { en: 'door', zh: '大门', emoji: '🚪', theme: 'vehicle' },
+    { en: 'truck', zh: '卡车', emoji: '🚚', theme: 'vehicle' },
+    { en: 'ship', zh: '轮船', emoji: '🚢', theme: 'vehicle' },
+    { en: 'rocket', zh: '火箭', emoji: '🚀', theme: 'vehicle' },
+    { en: 'taxi', zh: '出租车', emoji: '🚕', theme: 'vehicle' },
+    { en: 'helicopter', zh: '直升机', emoji: '🚁', theme: 'vehicle' },
+    { en: 'tractor', zh: '拖拉机', emoji: '🚜', theme: 'vehicle' },
+    { en: 'scooter', zh: '滑板车', emoji: '🛴', theme: 'vehicle' },
+    { en: 'subway', zh: '地铁', emoji: '🚇', theme: 'vehicle' },
+    // 颜色 10
+    { en: 'red', zh: '红色', emoji: '🔴', theme: 'color' },
+    { en: 'orange', zh: '橙色', emoji: '🟠', theme: 'color' },
+    { en: 'yellow', zh: '黄色', emoji: '🟡', theme: 'color' },
+    { en: 'green', zh: '绿色', emoji: '🟢', theme: 'color' },
+    { en: 'blue', zh: '蓝色', emoji: '🔵', theme: 'color' },
+    { en: 'purple', zh: '紫色', emoji: '🟣', theme: 'color' },
+    { en: 'black', zh: '黑色', emoji: '⚫', theme: 'color' },
+    { en: 'white', zh: '白色', emoji: '⚪', theme: 'color' },
+    { en: 'brown', zh: '棕色', emoji: '🟤', theme: 'color' },
+    { en: 'pink', zh: '粉色', emoji: '💗', theme: 'color' },
+    // 身体 9
+    { en: 'head', zh: '脑袋', emoji: '🧠', theme: 'body' },
+    { en: 'eye', zh: '眼睛', emoji: '👁️', theme: 'body' },
+    { en: 'ear', zh: '耳朵', emoji: '👂', theme: 'body' },
+    { en: 'nose', zh: '鼻子', emoji: '👃', theme: 'body' },
+    { en: 'mouth', zh: '嘴巴', emoji: '👄', theme: 'body' },
+    { en: 'hand', zh: '小手', emoji: '✋', theme: 'body' },
+    { en: 'foot', zh: '小脚', emoji: '🦶', theme: 'body' },
+    { en: 'arm', zh: '胳膊', emoji: '💪', theme: 'body' },
+    { en: 'tooth', zh: '牙齿', emoji: '🦷', theme: 'body' },
+    { en: 'leg', zh: '腿', emoji: '🦵', theme: 'body' },
+    { en: 'finger', zh: '手指', emoji: '👆', theme: 'body' },
+    // 动作 16
+    { en: 'run', zh: '跑', emoji: '🏃', theme: 'action' },
+    { en: 'jump', zh: '跳', emoji: '🤸', theme: 'action' },
+    { en: 'swim', zh: '游泳', emoji: '🏊', theme: 'action' },
+    { en: 'eat', zh: '吃', emoji: '🍽️', theme: 'action' },
+    { en: 'drink', zh: '喝', emoji: '🥤', theme: 'action' },
+    { en: 'sleep', zh: '睡觉', emoji: '😴', theme: 'action' },
+    { en: 'sing', zh: '唱歌', emoji: '🎤', theme: 'action' },
+    { en: 'dance', zh: '跳舞', emoji: '💃', theme: 'action' },
+    { en: 'read', zh: '读书', emoji: '📖', theme: 'action' },
+    { en: 'write', zh: '写字', emoji: '✍️', theme: 'action' },
+    { en: 'play', zh: '玩球', emoji: '⚽', theme: 'action' },
+    { en: 'clap', zh: '拍手', emoji: '👏', theme: 'action' },
+    { en: 'draw', zh: '画画', emoji: '🖍️', theme: 'action' },
+    { en: 'cook', zh: '做饭', emoji: '🍳', theme: 'action' },
+    { en: 'walk', zh: '走路', emoji: '🚶', theme: 'action' },
+    { en: 'hug', zh: '抱抱', emoji: '🤗', theme: 'action' },
+    // 天气 10
+    { en: 'sunny', zh: '晴天', emoji: '☀️', theme: 'weather' },
+    { en: 'rainy', zh: '雨天', emoji: '🌧️', theme: 'weather' },
+    { en: 'snowy', zh: '雪天', emoji: '❄️', theme: 'weather' },
+    { en: 'windy', zh: '刮风', emoji: '🌬️', theme: 'weather' },
+    { en: 'cloudy', zh: '多云', emoji: '☁️', theme: 'weather' },
+    { en: 'tornado', zh: '龙卷风', emoji: '🌪️', theme: 'weather' },
+    { en: 'storm', zh: '雷雨', emoji: '⛈️', theme: 'weather' },
+    { en: 'hot', zh: '很热', emoji: '🔥', theme: 'weather' },
+    { en: 'cold', zh: '很冷', emoji: '🥶', theme: 'weather' },
+    { en: 'foggy', zh: '大雾', emoji: '🌫️', theme: 'weather' },
+    // 心情 10
+    { en: 'happy', zh: '开心', emoji: '😊', theme: 'feeling' },
+    { en: 'sad', zh: '难过', emoji: '😢', theme: 'feeling' },
+    { en: 'angry', zh: '生气', emoji: '😠', theme: 'feeling' },
+    { en: 'scared', zh: '害怕', emoji: '😨', theme: 'feeling' },
+    { en: 'sleepy', zh: '困了', emoji: '😴', theme: 'feeling' },
+    { en: 'excited', zh: '兴奋', emoji: '🤩', theme: 'feeling' },
+    { en: 'tired', zh: '累了', emoji: '😪', theme: 'feeling' },
+    { en: 'love', zh: '爱你', emoji: '❤️', theme: 'feeling' },
+    { en: 'proud', zh: '自豪', emoji: '🥳', theme: 'feeling' },
+    { en: 'shy', zh: '害羞', emoji: '😳', theme: 'feeling' },
+    // 学校里 10
+    { en: 'bell', zh: '铃铛', emoji: '🔔', theme: 'school' },
+    { en: 'calendar', zh: '日历', emoji: '📅', theme: 'school' },
+    { en: 'computer', zh: '电脑', emoji: '💻', theme: 'school' },
+    { en: 'teacher', zh: '老师', emoji: '👩‍🏫', theme: 'school' },
+    { en: 'school', zh: '学校', emoji: '🏫', theme: 'school' },
+    { en: 'desk', zh: '课桌', emoji: '🪑', theme: 'school' },
+    { en: 'crayon', zh: '蜡笔', emoji: '🖍️', theme: 'school' },
+    { en: 'ruler', zh: '尺子', emoji: '📏', theme: 'school' },
+    { en: 'glue', zh: '胶水', emoji: '🧴', theme: 'school' },
+    { en: 'notebook', zh: '本子', emoji: '📓', theme: 'school' }
+  ],
+
+  // 汉字：按类别分组
+  hanzi: [
+    // 数字
+    { c: '一', p: 'yī', word: '一个', emoji: '1️⃣', cat: 'num' },
+    { c: '二', p: 'èr', word: '两个', emoji: '2️⃣', cat: 'num' },
+    { c: '三', p: 'sān', word: '三个', emoji: '3️⃣', cat: 'num' },
+    { c: '四', p: 'sì', word: '四个', emoji: '4️⃣', cat: 'num' },
+    { c: '五', p: 'wǔ', word: '五个', emoji: '5️⃣', cat: 'num' },
+    { c: '六', p: 'liù', word: '六个', emoji: '6️⃣', cat: 'num' },
+    { c: '七', p: 'qī', word: '七个', emoji: '7️⃣', cat: 'num' },
+    { c: '八', p: 'bā', word: '八个', emoji: '8️⃣', cat: 'num' },
+    { c: '九', p: 'jiǔ', word: '九个', emoji: '9️⃣', cat: 'num' },
+    { c: '十', p: 'shí', word: '十个', emoji: '🔟', cat: 'num' },
+    // 大自然
+    { c: '日', p: 'rì', word: '太阳', emoji: '☀️', cat: 'nature' },
+    { c: '月', p: 'yuè', word: '月亮', emoji: '🌙', cat: 'nature' },
+    { c: '山', p: 'shān', word: '大山', emoji: '⛰️', cat: 'nature' },
+    { c: '水', p: 'shuǐ', word: '水滴', emoji: '💧', cat: 'nature' },
+    { c: '火', p: 'huǒ', word: '火焰', emoji: '🔥', cat: 'nature' },
+    { c: '木', p: 'mù', word: '木头', emoji: '🪵', cat: 'nature' },
+    { c: '花', p: 'huā', word: '花朵', emoji: '🌸', cat: 'nature' },
+    { c: '草', p: 'cǎo', word: '小草', emoji: '🌿', cat: 'nature' },
+    { c: '云', p: 'yún', word: '白云', emoji: '☁️', cat: 'nature' },
+    { c: '星', p: 'xīng', word: '星星', emoji: '⭐', cat: 'nature' },
+    { c: '雨', p: 'yǔ', word: '下雨', emoji: '🌧️', cat: 'nature' },
+    { c: '石', p: 'shí', word: '石头', emoji: '🪨', cat: 'nature' },
+    // 小动物
+    { c: '鸟', p: 'niǎo', word: '小鸟', emoji: '🐦', cat: 'animal' },
+    { c: '鱼', p: 'yú', word: '小鱼', emoji: '🐟', cat: 'animal' },
+    { c: '马', p: 'mǎ', word: '小马', emoji: '🐴', cat: 'animal' },
+    { c: '牛', p: 'niú', word: '奶牛', emoji: '🐮', cat: 'animal' },
+    { c: '羊', p: 'yáng', word: '小羊', emoji: '🐑', cat: 'animal' },
+    { c: '兔', p: 'tù', word: '小兔', emoji: '🐰', cat: 'animal' },
+    { c: '猫', p: 'māo', word: '小猫', emoji: '🐱', cat: 'animal' },
+    { c: '狗', p: 'gǒu', word: '小狗', emoji: '🐶', cat: 'animal' },
+    { c: '猪', p: 'zhū', word: '小猪', emoji: '🐷', cat: 'animal' },
+    { c: '鸡', p: 'jī', word: '小鸡', emoji: '🐔', cat: 'animal' },
+    { c: '虫', p: 'chóng', word: '小虫', emoji: '🐛', cat: 'animal' },
+    { c: '鸭', p: 'yā', word: '鸭子', emoji: '🦆', cat: 'animal' },
+    { c: '鹅', p: 'é', word: '白鹅', emoji: '🦢', cat: 'animal' },
+    { c: '象', p: 'xiàng', word: '大象', emoji: '🐘', cat: 'animal' },
+    { c: '熊', p: 'xióng', word: '小熊', emoji: '🐻', cat: 'animal' },
+    // 我的身体
+    { c: '人', p: 'rén', word: '小朋友', emoji: '🧒', cat: 'body' },
+    { c: '口', p: 'kǒu', word: '嘴巴', emoji: '👄', cat: 'body' },
+    { c: '手', p: 'shǒu', word: '小手', emoji: '✋', cat: 'body' },
+    { c: '目', p: 'mù', word: '眼睛', emoji: '👁️', cat: 'body' },
+    { c: '耳', p: 'ěr', word: '耳朵', emoji: '👂', cat: 'body' },
+    { c: '心', p: 'xīn', word: '爱心', emoji: '❤️', cat: 'body' },
+    { c: '头', p: 'tóu', word: '脑袋', emoji: '🧠', cat: 'body' },
+    { c: '足', p: 'zú', word: '小脚', emoji: '🦶', cat: 'body' },
+    // 生活用品
+    { c: '车', p: 'chē', word: '汽车', emoji: '🚗', cat: 'life' },
+    { c: '门', p: 'mén', word: '大门', emoji: '🚪', cat: 'life' },
+    { c: '书', p: 'shū', word: '书本', emoji: '📖', cat: 'life' },
+    { c: '笔', p: 'bǐ', word: '铅笔', emoji: '✏️', cat: 'life' },
+    { c: '米', p: 'mǐ', word: '大米', emoji: '🍚', cat: 'life' },
+    { c: '果', p: 'guǒ', word: '苹果', emoji: '🍎', cat: 'life' },
+    { c: '灯', p: 'dēng', word: '灯笼', emoji: '🏮', cat: 'life' },
+    { c: '树', p: 'shù', word: '大树', emoji: '🌳', cat: 'life' },
+    { c: '田', p: 'tián', word: '田地', emoji: '🌾', cat: 'life' },
+    { c: '床', p: 'chuáng', word: '小床', emoji: '🛏️', cat: 'life' },
+    // 大自然 2
+    { c: '天', p: 'tiān', word: '天空', emoji: '🌤️', cat: 'nature2' },
+    { c: '地', p: 'dì', word: '大地', emoji: '🌍', cat: 'nature2' },
+    { c: '风', p: 'fēng', word: '风', emoji: '🌬️', cat: 'nature2' },
+    { c: '雪', p: 'xuě', word: '雪花', emoji: '❄️', cat: 'nature2' },
+    { c: '冰', p: 'bīng', word: '冰块', emoji: '🧊', cat: 'nature2' },
+    { c: '海', p: 'hǎi', word: '大海', emoji: '🌊', cat: 'nature2' },
+    { c: '河', p: 'hé', word: '小河', emoji: '🏞️', cat: 'nature2' },
+    { c: '林', p: 'lín', word: '树林', emoji: '🌲', cat: 'nature2' },
+    { c: '光', p: 'guāng', word: '光亮', emoji: '✨', cat: 'nature2' },
+    { c: '电', p: 'diàn', word: '闪电', emoji: '⚡', cat: 'nature2' },
+    { c: '声', p: 'shēng', word: '声音', emoji: '🔊', cat: 'nature2' },
+    { c: '虹', p: 'hóng', word: '彩虹', emoji: '🌈', cat: 'nature2' },
+    // 动作
+    { c: '看', p: 'kàn', word: '看一看', emoji: '👀', cat: 'action' },
+    { c: '听', p: 'tīng', word: '听一听', emoji: '👂', cat: 'action' },
+    { c: '说', p: 'shuō', word: '说话', emoji: '🗣️', cat: 'action' },
+    { c: '吃', p: 'chī', word: '吃饭', emoji: '🍚', cat: 'action' },
+    { c: '喝', p: 'hē', word: '喝水', emoji: '🥤', cat: 'action' },
+    { c: '跑', p: 'pǎo', word: '跑步', emoji: '🏃', cat: 'action' },
+    { c: '跳', p: 'tiào', word: '跳一跳', emoji: '🤸', cat: 'action' },
+    { c: '飞', p: 'fēi', word: '飞机', emoji: '✈️', cat: 'action' },
+    { c: '坐', p: 'zuò', word: '坐下', emoji: '🪑', cat: 'action' },
+    { c: '睡', p: 'shuì', word: '睡觉', emoji: '😴', cat: 'action' },
+    { c: '洗', p: 'xǐ', word: '洗澡', emoji: '🛁', cat: 'action' },
+    { c: '唱', p: 'chàng', word: '唱歌', emoji: '🎤', cat: 'action' },
+    { c: '画', p: 'huà', word: '画画', emoji: '🎨', cat: 'action' },
+    { c: '写', p: 'xiě', word: '写字', emoji: '✍️', cat: 'action' },
+    { c: '读', p: 'dú', word: '读书', emoji: '📖', cat: 'action' },
+    { c: '玩', p: 'wán', word: '玩玩具', emoji: '🧩', cat: 'action' },
+    { c: '买', p: 'mǎi', word: '买东西', emoji: '🛒', cat: 'action' },
+    // 家人
+    { c: '爸', p: 'bà', word: '爸爸', emoji: '👨', cat: 'family' },
+    { c: '妈', p: 'mā', word: '妈妈', emoji: '👩', cat: 'family' },
+    { c: '家', p: 'jiā', word: '家', emoji: '🏠', cat: 'family' },
+    { c: '爱', p: 'ài', word: '爱心', emoji: '❤️', cat: 'family' },
+    { c: '哥', p: 'gē', word: '哥哥', emoji: '👦', cat: 'family' },
+    { c: '姐', p: 'jiě', word: '姐姐', emoji: '👧', cat: 'family' },
+    { c: '弟', p: 'dì', word: '弟弟', emoji: '🧒', cat: 'family' },
+    { c: '妹', p: 'mèi', word: '妹妹', emoji: '👧', cat: 'family' },
+    { c: '宝', p: 'bǎo', word: '宝贝', emoji: '💎', cat: 'family' },
+    { c: '娃', p: 'wá', word: '娃娃', emoji: '🧒', cat: 'family' },
+    // 颜色
+    { c: '红', p: 'hóng', word: '红色', emoji: '🔴', cat: 'color' },
+    { c: '黄', p: 'huáng', word: '黄色', emoji: '🟡', cat: 'color' },
+    { c: '绿', p: 'lǜ', word: '绿色', emoji: '🟢', cat: 'color' },
+    { c: '蓝', p: 'lán', word: '蓝色', emoji: '🔵', cat: 'color' },
+    { c: '白', p: 'bái', word: '白色', emoji: '⚪', cat: 'color' },
+    { c: '黑', p: 'hēi', word: '黑色', emoji: '⚫', cat: 'color' },
+    { c: '紫', p: 'zǐ', word: '紫色', emoji: '🟣', cat: 'color' },
+    { c: '粉', p: 'fěn', word: '粉色', emoji: '🌸', cat: 'color' },
+    // 好吃的
+    { c: '饭', p: 'fàn', word: '米饭', emoji: '🍚', cat: 'food' },
+    { c: '面', p: 'miàn', word: '面条', emoji: '🍜', cat: 'food' },
+    { c: '蛋', p: 'dàn', word: '鸡蛋', emoji: '🥚', cat: 'food' },
+    { c: '奶', p: 'nǎi', word: '牛奶', emoji: '🥛', cat: 'food' },
+    { c: '菜', p: 'cài', word: '青菜', emoji: '🥬', cat: 'food' },
+    { c: '糖', p: 'táng', word: '糖果', emoji: '🍬', cat: 'food' },
+    { c: '茶', p: 'chá', word: '喝茶', emoji: '🍵', cat: 'food' },
+    { c: '瓜', p: 'guā', word: '西瓜', emoji: '🍉', cat: 'food' },
+    { c: '豆', p: 'dòu', word: '豆子', emoji: '🫘', cat: 'food' },
+    { c: '糕', p: 'gāo', word: '蛋糕', emoji: '🍰', cat: 'food' },
+    { c: '汁', p: 'zhī', word: '果汁', emoji: '🧃', cat: 'food' },
+    { c: '蜜', p: 'mì', word: '蜂蜜', emoji: '🍯', cat: 'food' },
+    { c: '包', p: 'bāo', word: '面包', emoji: '🍞', cat: 'food' },
+    { c: '肉', p: 'ròu', word: '肉', emoji: '🍖', cat: 'food' },
+    { c: '饼', p: 'bǐng', word: '饼干', emoji: '🍪', cat: 'food' },
+    { c: '桃', p: 'táo', word: '桃子', emoji: '🍑', cat: 'food' },
+    // 学校里
+    { c: '字', p: 'zì', word: '汉字', emoji: '🔤', cat: 'school' },
+    { c: '学', p: 'xué', word: '学习', emoji: '🏫', cat: 'school' },
+    { c: '校', p: 'xiào', word: '学校', emoji: '🏫', cat: 'school' },
+    { c: '本', p: 'běn', word: '本子', emoji: '📓', cat: 'school' },
+    { c: '图', p: 'tú', word: '图画', emoji: '🖼️', cat: 'school' },
+    { c: '数', p: 'shù', word: '数学', emoji: '🔢', cat: 'school' },
+    { c: '歌', p: 'gē', word: '唱歌', emoji: '🎵', cat: 'school' },
+    { c: '问', p: 'wèn', word: '提问', emoji: '❓', cat: 'school' },
+    { c: '答', p: 'dá', word: '回答', emoji: '💬', cat: 'school' },
+    { c: '想', p: 'xiǎng', word: '想一想', emoji: '💭', cat: 'school' },
+    // 身边的场所
+    { c: '园', p: 'yuán', word: '公园', emoji: '🏞️', cat: 'place' },
+    { c: '店', p: 'diàn', word: '商店', emoji: '🏪', cat: 'place' },
+    { c: '院', p: 'yuàn', word: '医院', emoji: '🏥', cat: 'place' },
+    { c: '站', p: 'zhàn', word: '车站', emoji: '🚉', cat: 'place' },
+    { c: '房', p: 'fáng', word: '房子', emoji: '🏡', cat: 'place' },
+    { c: '室', p: 'shì', word: '教室', emoji: '🏫', cat: 'place' },
+    { c: '桥', p: 'qiáo', word: '小桥', emoji: '🌉', cat: 'place' },
+    { c: '路', p: 'lù', word: '马路', emoji: '🛣️', cat: 'place' },
+    // 时间
+    { c: '早', p: 'zǎo', word: '早上', emoji: '🌅', cat: 'time' },
+    { c: '午', p: 'wǔ', word: '中午', emoji: '☀️', cat: 'time' },
+    { c: '晚', p: 'wǎn', word: '晚上', emoji: '🌙', cat: 'time' },
+    { c: '年', p: 'nián', word: '新年', emoji: '🧧', cat: 'time' },
+    { c: '今', p: 'jīn', word: '今天', emoji: '📅', cat: 'time' },
+    { c: '明', p: 'míng', word: '明天', emoji: '🌞', cat: 'time' },
+    { c: '时', p: 'shí', word: '时间', emoji: '⏰', cat: 'time' },
+    { c: '分', p: 'fēn', word: '分钟', emoji: '⏱️', cat: 'time' }
+  ],
+
+  // 拼音：声母、韵母、音节
+  pinyin: {
+    initials: [
+      { p: 'b', word: '爸爸', emoji: '👨' },
+      { p: 'p', word: '苹果', emoji: '🍎' },
+      { p: 'm', word: '妈妈', emoji: '👩' },
+      { p: 'f', word: '风车', emoji: '🎡' },
+      { p: 'd', word: '大象', emoji: '🐘' },
+      { p: 't', word: '兔子', emoji: '🐰' },
+      { p: 'n', word: '牛奶', emoji: '🥛' },
+      { p: 'l', word: '老虎', emoji: '🐯' },
+      { p: 'g', word: '哥哥', emoji: '👦' },
+      { p: 'k', word: '蝌蚪', emoji: '🐸' },
+      { p: 'h', word: '喝水', emoji: '🥤' },
+      { p: 'j', word: '橘子', emoji: '🍊' },
+      { p: 'q', word: '气球', emoji: '🎈' },
+      { p: 'x', word: '星星', emoji: '⭐' },
+      { p: 'zh', word: '蜘蛛', emoji: '🕷️' },
+      { p: 'ch', word: '吃饭', emoji: '🍚' },
+      { p: 'sh', word: '狮子', emoji: '🦁' },
+      { p: 'r', word: '日出', emoji: '🌅' },
+      { p: 'z', word: '嘴巴', emoji: '👄' },
+      { p: 'c', word: '小草', emoji: '🌿' },
+      { p: 's', word: '丝瓜', emoji: '🥒' },
+      { p: 'y', word: '衣服', emoji: '👕' },
+      { p: 'w', word: '乌鸦', emoji: '🐦' }
+    ],
+    /* 韵母：单韵母 6 + 复韵母 9 + 鼻韵母 9，顺序必须与课程 group 下标一致 */
+    finals: [
+      { p: 'a', word: '啊', emoji: '😮', kind: 'single' },
+      { p: 'o', word: '喔', emoji: '🐓', kind: 'single' },
+      { p: 'e', word: '鹅', emoji: '🦢', kind: 'single' },
+      { p: 'i', word: '衣服', emoji: '👕', kind: 'single' },
+      { p: 'u', word: '乌鸦', emoji: '🐦', kind: 'single' },
+      { p: 'ü', word: '小鱼', emoji: '🐟', kind: 'single' },
+      { p: 'ai', word: '爱心', emoji: '❤️', kind: 'compound' },
+      { p: 'ei', word: '妹妹', emoji: '👧', kind: 'compound' },
+      { p: 'ui', word: '水杯', emoji: '🥤', kind: 'compound' },
+      { p: 'ao', word: '桃子', emoji: '🍑', kind: 'compound' },
+      { p: 'ou', word: '海鸥', emoji: '🕊️', kind: 'compound' },
+      { p: 'iu', word: '气球', emoji: '🎈', kind: 'compound' },
+      { p: 'ie', word: '鞋子', emoji: '👟', kind: 'compound' },
+      { p: 'üe', word: '月亮', emoji: '🌙', kind: 'compound' },
+      { p: 'er', word: '耳朵', emoji: '👂', kind: 'compound' },
+      { p: 'an', word: '大山', emoji: '⛰️', kind: 'nasal' },
+      { p: 'en', word: '大门', emoji: '🚪', kind: 'nasal' },
+      { p: 'in', word: '爱心', emoji: '💗', kind: 'nasal' },
+      { p: 'un', word: '轮子', emoji: '🛞', kind: 'nasal' },
+      { p: 'ün', word: '白云', emoji: '☁️', kind: 'nasal' },
+      { p: 'ang', word: '糖果', emoji: '🍬', kind: 'nasal' },
+      { p: 'eng', word: '台灯', emoji: '💡', kind: 'nasal' },
+      { p: 'ing', word: '星星', emoji: '⭐', kind: 'nasal' },
+      { p: 'ong', word: '闹钟', emoji: '⏰', kind: 'nasal' }
+    ],
+    /* 本地有 mp3 的韵母（24 个已全部下载到 assets/audio/pinyin/yun） */
+    localFinals: ['a', 'o', 'e', 'i', 'u', 'ü',
+      'ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe', 'er',
+      'an', 'en', 'in', 'un', 'ün', 'ang', 'eng', 'ing', 'ong'],
+    /* 中文同音字：让朗读发出声母、韵母本身的声音，而不是英文字母名 */
+    initialSay: {
+      b: '玻', p: '坡', m: '摸', f: '佛', d: '得', t: '特', n: '讷', l: '勒',
+      g: '哥', k: '科', h: '喝', j: '鸡', q: '七', x: '西',
+      zh: '知', ch: '吃', sh: '诗', r: '日', z: '资', c: '刺', s: '丝', y: '衣', w: '乌'
+    },
+    finalSay: {
+      a: '啊', o: '喔', e: '鹅', i: '衣', u: '乌', 'ü': '鱼',
+      ai: '哀', ei: '诶', ui: '威', ao: '凹', ou: '欧', iu: '优', ie: '耶', 'üe': '约', er: '儿',
+      an: '安', en: '恩', in: '因', un: '温', 'ün': '晕',
+      ang: '昂', eng: '鞥', ing: '英', ong: '翁'
+    },
+    syllables: [
+      { p: 'bā', c: '八', emoji: '8️⃣', tone: 1 },
+      { p: 'mā', c: '妈', emoji: '👩', tone: 1 },
+      { p: 'mǎ', c: '马', emoji: '🐴', tone: 3 },
+      { p: 'má', c: '麻', emoji: '🌿', tone: 2 },
+      { p: 'mà', c: '骂', emoji: '😠', tone: 4 },
+      { p: 'bǐ', c: '笔', emoji: '✏️', tone: 3 },
+      { p: 'bí', c: '鼻', emoji: '👃', tone: 2 },
+      { p: 'bì', c: '壁', emoji: '🧱', tone: 4 },
+      { p: 'mǐ', c: '米', emoji: '🍚', tone: 3 },
+      { p: 'mì', c: '蜜', emoji: '🍯', tone: 4 },
+      { p: 'dà', c: '大', emoji: '🐘', tone: 4 },
+      { p: 'dā', c: '搭', emoji: '🧱', tone: 1 },
+      { p: 'tù', c: '兔', emoji: '🐰', tone: 4 },
+      { p: 'tǔ', c: '土', emoji: '🪨', tone: 3 },
+      { p: 'nǎi', c: '奶', emoji: '🥛', tone: 3 },
+      { p: 'nǎ', c: '哪', emoji: '❓', tone: 3 },
+      { p: 'shū', c: '书', emoji: '📖', tone: 1 },
+      { p: 'shǔ', c: '鼠', emoji: '🐭', tone: 3 },
+      { p: 'shù', c: '树', emoji: '🌳', tone: 4 },
+      { p: 'huā', c: '花', emoji: '🌸', tone: 1 },
+      { p: 'huǒ', c: '火', emoji: '🔥', tone: 3 },
+      { p: 'xuě', c: '雪', emoji: '❄️', tone: 3 },
+      { p: 'yǔ', c: '雨', emoji: '🌧️', tone: 3 },
+      { p: 'yú', c: '鱼', emoji: '🐟', tone: 2 },
+      { p: 'zhǐ', c: '纸', emoji: '🧻', tone: 3 },
+      { p: 'chī', c: '吃', emoji: '🍚', tone: 1 },
+      { p: 'shī', c: '狮', emoji: '🦁', tone: 1 },
+      { p: 'rì', c: '日', emoji: '☀️', tone: 4 },
+      { p: 'zì', c: '字', emoji: '🔤', tone: 4 },
+      { p: 'cǎo', c: '草', emoji: '🌿', tone: 3 },
+      { p: 'sī', c: '丝', emoji: '🧵', tone: 1 },
+      { p: 'yī', c: '衣', emoji: '👕', tone: 1 },
+      { p: 'wū', c: '乌', emoji: '🐦', tone: 1 },
+      { p: 'bái', c: '白', emoji: '⚪', tone: 2 },
+      { p: 'hǎo', c: '好', emoji: '👍', tone: 3 },
+      { p: 'māo', c: '猫', emoji: '🐱', tone: 1 },
+      { p: 'gǒu', c: '狗', emoji: '🐶', tone: 3 },
+      { p: 'niú', c: '牛', emoji: '🐮', tone: 2 },
+      { p: 'xié', c: '鞋', emoji: '👟', tone: 2 },
+      { p: 'yuè', c: '月', emoji: '🌙', tone: 4 },
+      { p: 'ěr', c: '耳', emoji: '👂', tone: 3 },
+      { p: 'shān', c: '山', emoji: '⛰️', tone: 1 },
+      { p: 'mén', c: '门', emoji: '🚪', tone: 2 },
+      { p: 'xīn', c: '心', emoji: '💗', tone: 1 },
+      { p: 'chūn', c: '春', emoji: '🌸', tone: 1 },
+      { p: 'yún', c: '云', emoji: '☁️', tone: 2 },
+      { p: 'táng', c: '糖', emoji: '🍬', tone: 2 },
+      { p: 'dēng', c: '灯', emoji: '💡', tone: 1 },
+      { p: 'xīng', c: '星', emoji: '⭐', tone: 1 },
+      { p: 'hóng', c: '红', emoji: '🔴', tone: 2 },
+      { p: 'guā', c: '瓜', emoji: '🍉', tone: 1 },
+      { p: 'fēng', c: '风', emoji: '🌬️', tone: 1 },
+      { p: 'lǎo', c: '老', emoji: '👴', tone: 3 },
+      { p: 'pǎo', c: '跑', emoji: '🏃', tone: 3 },
+      { p: 'bēi', c: '杯', emoji: '🥤', tone: 1 },
+      { p: 'shuǐ', c: '水', emoji: '💧', tone: 3 },
+      { p: 'yáng', c: '羊', emoji: '🐑', tone: 2 },
+      { p: 'bāo', c: '包', emoji: '🥟', tone: 1 },
+      { p: 'píng', c: '苹', emoji: '🍎', tone: 2 },
+      { p: 'guǒ', c: '果', emoji: '🍏', tone: 3 },
+      { p: 'niǎo', c: '鸟', emoji: '🐦', tone: 3 },
+      { p: 'chóng', c: '虫', emoji: '🐛', tone: 2 },
+      { p: 'chē', c: '车', emoji: '🚗', tone: 1 },
+      { p: 'shǒu', c: '手', emoji: '✋', tone: 3 },
+      { p: 'zú', c: '足', emoji: '🦶', tone: 2 },
+      { p: 'fēi', c: '飞', emoji: '✈️', tone: 1 },
+      { p: 'chàng', c: '唱', emoji: '🎤', tone: 4 },
+      { p: 'jiā', c: '家', emoji: '🏠', tone: 1 },
+      { p: 'qiū', c: '秋', emoji: '🍂', tone: 1 }
+    ]
+  },
+
+  /* 图形认知：id 同时用于生成 SVG 图形 */
+  shapes: [
+    { id: 'circle', zh: '圆形', en: 'circle' },
+    { id: 'square', zh: '正方形', en: 'square' },
+    { id: 'triangle', zh: '三角形', en: 'triangle' },
+    { id: 'rect', zh: '长方形', en: 'rectangle' },
+    { id: 'star', zh: '五角星', en: 'star' },
+    { id: 'heart', zh: '爱心', en: 'heart' },
+    { id: 'oval', zh: '椭圆', en: 'oval' },
+    { id: 'diamond', zh: '菱形', en: 'diamond' },
+    { id: 'pentagon', zh: '五边形', en: 'pentagon' },
+    { id: 'hexagon', zh: '六边形', en: 'hexagon' }
+  ],
+
+  /* 看图说话：中英各一句，语文与英语共用同一批图片 */
+  sentences: [
+    { emoji: '🐱', zh: '小猫在睡觉。', en: 'The cat is sleeping.' },
+    { emoji: '🐶', zh: '小狗在跑步。', en: 'The dog is running.' },
+    { emoji: '🐟', zh: '小鱼在水里游。', en: 'The fish is swimming.' },
+    { emoji: '🐦', zh: '小鸟在唱歌。', en: 'The bird is singing.' },
+    { emoji: '🍎', zh: '我在吃苹果。', en: 'I am eating an apple.' },
+    { emoji: '📖', zh: '我在看书。', en: 'I am reading a book.' },
+    { emoji: '☀️', zh: '太阳出来了。', en: 'The sun is up.' },
+    { emoji: '🌧️', zh: '下雨了。', en: 'It is raining.' },
+    { emoji: '🎂', zh: '今天是我的生日。', en: 'Today is my birthday.' },
+    { emoji: '🚗', zh: '爸爸在开车。', en: 'Dad is driving a car.' },
+    { emoji: '🛏️', zh: '我要睡觉了。', en: 'I am going to bed.' },
+    { emoji: '🧼', zh: '我在洗手。', en: 'I am washing my hands.' },
+    { emoji: '🏃', zh: '我们在跑步。', en: 'We are running.' },
+    { emoji: '🍌', zh: '猴子爱吃香蕉。', en: 'The monkey likes bananas.' },
+    { emoji: '🌸', zh: '花儿开了。', en: 'The flowers are blooming.' },
+    { emoji: '🐘', zh: '大象的鼻子很长。', en: 'The elephant has a long nose.' },
+    { emoji: '🎨', zh: '我在画画。', en: 'I am drawing a picture.' },
+    { emoji: '🚌', zh: '小朋友坐校车。', en: 'The children take the school bus.' },
+    { emoji: '☂️', zh: '下雨了，我撑着伞去上学。', en: 'It is raining, so I go to school with an umbrella.' },
+    { emoji: '🐰', zh: '小兔子在草地上吃萝卜。', en: 'The rabbit is eating a carrot on the grass.' },
+    { emoji: '🐻', zh: '小熊抱着蜂蜜罐回家了。', en: 'The bear carries a pot of honey home.' },
+    { emoji: '🌳', zh: '我和爸爸在公园里种树。', en: 'Dad and I plant a tree in the park.' },
+    { emoji: '🚲', zh: '哥哥骑着自行车去玩。', en: 'My brother rides a bike to play.' },
+    { emoji: '🍉', zh: '夏天到了，我们爱吃西瓜。', en: 'Summer is here, and we love eating watermelon.' },
+    { emoji: '🐔', zh: '小鸡跟着妈妈找虫子。', en: 'The chicks follow their mother to look for worms.' },
+    { emoji: '🌙', zh: '月亮出来了。', en: 'The moon is up.' },
+    { emoji: '🥛', zh: '我每天喝一杯牛奶。', en: 'I drink a glass of milk every day.' },
+    { emoji: '🧸', zh: '妹妹抱着小熊睡觉。', en: 'My sister sleeps with her teddy bear.' },
+    { emoji: '🍜', zh: '奶奶做的面条真好吃。', en: 'The noodles grandma makes are yummy.' },
+    { emoji: '⛄', zh: '冬天下雪了。', en: 'It snows in winter.' },
+    { emoji: '🧹', zh: '我在帮妈妈扫地上的纸屑。', en: 'I am helping my mom sweep the floor.' },
+    { emoji: '🐢', zh: '小乌龟慢慢地爬过小石头。', en: 'The little turtle is crawling over a stone.' },
+    { emoji: '🍇', zh: '盘子里的葡萄又紫又甜。', en: 'The grapes on the plate are purple and sweet.' },
+    { emoji: '🚒', zh: '消防车飞快地开去救火。', en: 'The fire truck is driving fast to the fire.' },
+    { emoji: '🎈', zh: '红气球飞上天，越飞越高。', en: 'The red balloon flies higher and higher in the sky.' }
+  ],
+
+  /* 儿歌童谣：lang 区分中英，lines 用于接句练习 */
+  rhymes: [
+    { name: '小星星', lang: 'zh', lines: ['一闪一闪亮晶晶，', '满天都是小星星。', '挂在天上放光明，', '好像许多小眼睛。'] },
+    { name: '两只老虎', lang: 'zh', lines: ['两只老虎，两只老虎，', '跑得快，跑得快。', '一只没有耳朵，', '一只没有尾巴，', '真奇怪，真奇怪。'] },
+    { name: '小兔子乖乖', lang: 'zh', lines: ['小兔子乖乖，把门儿开开。', '快点儿开开，我要进来。', '不开不开我不开，', '妈妈没回来，谁来也不开。'] },
+    { name: '咏鹅', lang: 'zh', lines: ['鹅，鹅，鹅，', '曲项向天歌。', '白毛浮绿水，', '红掌拨清波。'] },
+    { name: '数鸭子', lang: 'zh', lines: ['门前大桥下，游过一群鸭。', '快来快来数一数，', '二四六七八。'] },
+    { name: '静夜思', lang: 'zh', lines: ['床前明月光，', '疑是地上霜。', '举头望明月，', '低头思故乡。'] },
+    { name: 'Twinkle Twinkle', lang: 'en', lines: ['Twinkle, twinkle, little star,', 'How I wonder what you are.', 'Up above the world so high,', 'Like a diamond in the sky.'] },
+    { name: 'ABC Song', lang: 'en', lines: ['A B C D E F G,', 'H I J K L M N O P,', 'Q R S and T U V,', 'W X Y and Z.'] },
+    { name: 'Rain Rain Go Away', lang: 'en', lines: ['Rain, rain, go away,', 'Come again another day.', 'Little children want to play,', 'Rain, rain, go away.'] },
+    { name: 'Head Shoulders', lang: 'en', lines: ['Head, shoulders, knees and toes,', 'Knees and toes.', 'Eyes and ears and mouth and nose,', 'Head, shoulders, knees and toes.'] },
+    { name: 'Old MacDonald', lang: 'en', lines: ['Old MacDonald had a farm,', 'E I E I O.', 'And on his farm he had a cow,', 'E I E I O.'] },
+    { name: '拔萝卜', lang: 'zh', lines: ['拔萝卜，拔萝卜，', '嘿哟嘿哟拔萝卜。', '嘿哟嘿哟拔不动，', '老爷爷，快快来，', '快来帮我们拔萝卜。'] },
+    { name: '小雨点', lang: 'zh', lines: ['小雨点，沙沙沙，', '落在花园里，花儿乐得张嘴巴。', '小雨点，沙沙沙，', '落在池塘里，鱼儿乐得摇尾巴。', '小雨点，沙沙沙，', '落在田野里，苗儿乐得向上拔。'] },
+    { name: 'Five Little Ducks', lang: 'en', lines: ['Five little ducks went out one day,', 'Over the hills and far away.', 'Mother duck said, quack, quack, quack,', 'But only four little ducks came back.', 'Four little ducks went out one day,', 'Over the hills and far away.'] },
+    { name: 'If You Are Happy', lang: 'en', lines: ['If you are happy and you know it, clap your hands.', 'If you are happy and you know it, clap your hands.', 'If you are happy and you know it,', 'Then your face will surely show it.', 'If you are happy and you know it, clap your hands.'] }
+  ],
+
+  /* 笔顺：first 是第一笔的名称，只取最常见、最不容易有争议的字 */
+  /* st 为逐笔笔顺，复合笔画统一按小学口径归到横/竖/撇/点/折/钩/捺/提 */
+  strokes: [
+    { c: '一', p: 'yī', first: '横', st: ['横'], word: '一个' },
+    { c: '二', p: 'èr', first: '横', st: ['横', '横'], word: '两个' },
+    { c: '三', p: 'sān', first: '横', st: ['横', '横', '横'], word: '三个' },
+    { c: '十', p: 'shí', first: '横', st: ['横', '竖'], word: '十个' },
+    { c: '上', p: 'shàng', first: '竖', st: ['竖', '横', '横'], word: '上面' },
+    { c: '下', p: 'xià', first: '横', st: ['横', '竖', '点'], word: '下面' },
+    { c: '口', p: 'kǒu', first: '竖', st: ['竖', '折', '横'], word: '嘴巴' },
+    { c: '日', p: 'rì', first: '竖', st: ['竖', '折', '横', '横'], word: '太阳' },
+    { c: '田', p: 'tián', first: '竖', st: ['竖', '折', '横', '竖', '横'], word: '田地' },
+    { c: '山', p: 'shān', first: '竖', st: ['竖', '折', '竖'], word: '大山' },
+    { c: '中', p: 'zhōng', first: '竖', st: ['竖', '折', '横', '竖'], word: '中间' },
+    { c: '木', p: 'mù', first: '横', st: ['横', '竖', '撇', '捺'], word: '大树' },
+    { c: '大', p: 'dà', first: '横', st: ['横', '撇', '捺'], word: '很大' },
+    { c: '天', p: 'tiān', first: '横', st: ['横', '横', '撇', '捺'], word: '天空' },
+    { c: '人', p: 'rén', first: '撇', st: ['撇', '捺'], word: '人们' },
+    { c: '八', p: 'bā', first: '撇', st: ['撇', '捺'], word: '八个' },
+    { c: '月', p: 'yuè', first: '撇', st: ['撇', '折', '横', '横'], word: '月亮' },
+    { c: '手', p: 'shǒu', first: '撇', st: ['撇', '横', '横', '钩'], word: '小手' },
+    { c: '白', p: 'bái', first: '撇', st: ['撇', '竖', '折', '横', '横'], word: '白色' },
+    { c: '生', p: 'shēng', first: '撇', st: ['撇', '横', '横', '竖', '横'], word: '生日' },
+    { c: '牛', p: 'niú', first: '撇', st: ['撇', '横', '横', '竖'], word: '小牛' },
+    { c: '鸟', p: 'niǎo', first: '撇', st: ['撇', '折', '点', '折', '横'], word: '小鸟' },
+    { c: '火', p: 'huǒ', first: '点', st: ['点', '撇', '撇', '捺'], word: '火苗' },
+    { c: '心', p: 'xīn', first: '点', st: ['点', '钩', '点', '点'], word: '爱心' },
+    { c: '头', p: 'tóu', first: '点', st: ['点', '点', '横', '撇', '点'], word: '头发' },
+    { c: '米', p: 'mǐ', first: '点', st: ['点', '撇', '横', '竖', '撇', '捺'], word: '大米' },
+    { c: '门', p: 'mén', first: '点', st: ['点', '竖', '折'], word: '大门' },
+    { c: '灯', p: 'dēng', first: '点', st: ['点', '撇', '撇', '横', '钩'], word: '台灯' },
+    { c: '马', p: 'mǎ', first: '折', st: ['折', '折', '横'], word: '小马' },
+    { c: '女', p: 'nǚ', first: '撇', st: ['撇', '点', '撇', '横'], word: '女孩' },
+    { c: '子', p: 'zǐ', first: '折', st: ['折', '竖', '横'], word: '孩子' },
+    { c: '书', p: 'shū', first: '折', st: ['折', '折', '竖', '点'], word: '书本' },
+    { c: '车', p: 'chē', first: '横', st: ['横', '折', '横', '竖'], word: '汽车' },
+    { c: '石', p: 'shí', first: '横', st: ['横', '撇', '竖', '折', '横'], word: '石头' },
+    { c: '云', p: 'yún', first: '横', st: ['横', '横', '撇', '折', '点'], word: '白云' },
+    { c: '雨', p: 'yǔ', first: '横', st: ['横', '竖', '折', '竖', '点', '点', '点', '点'], word: '下雨' },
+    { c: '小', p: 'xiǎo', first: '竖', st: ['竖', '撇', '点'], word: '小手' },
+    { c: '水', p: 'shuǐ', first: '钩', st: ['钩', '折', '撇', '捺'], word: '喝水' },
+    { c: '少', p: 'shǎo', first: '竖', st: ['竖', '点', '点', '撇'], word: '多少' },
+    { c: '王', p: 'wáng', first: '横', st: ['横', '横', '竖', '横'], word: '国王' },
+    { c: '土', p: 'tǔ', first: '横', st: ['横', '竖', '横'], word: '泥土' },
+    { c: '工', p: 'gōng', first: '横', st: ['横', '竖', '横'], word: '做工' },
+    { c: '半', p: 'bàn', first: '点', st: ['点', '撇', '横', '横', '竖'], word: '一半' },
+    { c: '关', p: 'guān', first: '点', st: ['点', '点', '横', '横', '撇', '捺'], word: '关门' },
+    { c: '见', p: 'jiàn', first: '竖', st: ['竖', '折', '撇', '钩'], word: '看见' },
+    { c: '五', p: 'wǔ', first: '横', st: ['横', '竖', '折', '横'], word: '五个' },
+    { c: '六', p: 'liù', first: '点', st: ['点', '横', '撇', '点'], word: '六个' },
+    { c: '七', p: 'qī', first: '横', st: ['横', '钩'], word: '七个' },
+    { c: '九', p: 'jiǔ', first: '撇', st: ['撇', '钩'], word: '九个' },
+    { c: '了', p: 'le', first: '折', st: ['折', '钩'], word: '好了' },
+    { c: '也', p: 'yě', first: '折', st: ['折', '竖', '钩'], word: '也是' },
+    { c: '禾', p: 'hé', first: '撇', st: ['撇', '横', '竖', '撇', '捺'], word: '禾苗' },
+    { c: '井', p: 'jǐng', first: '横', st: ['横', '横', '撇', '竖'], word: '水井' },
+    { c: '正', p: 'zhèng', first: '横', st: ['横', '竖', '横', '竖', '横'], word: '正确' },
+    { c: '去', p: 'qù', first: '横', st: ['横', '竖', '横', '折', '点'], word: '出去' },
+    { c: '来', p: 'lái', first: '横', st: ['横', '点', '撇', '横', '竖', '撇', '捺'], word: '来了' },
+    { c: '果', p: 'guǒ', first: '竖', st: ['竖', '折', '横', '横', '竖', '撇', '捺'], word: '水果' },
+    { c: '目', p: 'mù', first: '竖', st: ['竖', '折', '横', '横', '横'], word: '目光' },
+    { c: '虫', p: 'chóng', first: '竖', st: ['竖', '折', '横', '竖', '提', '点'], word: '小虫' },
+    { c: '只', p: 'zhǐ', first: '竖', st: ['竖', '折', '横', '撇', '点'], word: '一只' },
+    { c: '东', p: 'dōng', first: '横', st: ['横', '折', '钩', '撇', '点'], word: '东方' },
+    { c: '里', p: 'lǐ', first: '竖', st: ['竖', '折', '横', '横', '竖', '横', '横'], word: '里面' },
+    { c: '公', p: 'gōng', first: '撇', st: ['撇', '捺', '折', '点'], word: '公园' },
+    { c: '飞', p: 'fēi', first: '钩', st: ['钩', '撇', '点'], word: '飞机' },
+    { c: '早', p: 'zǎo', first: '竖', st: ['竖', '折', '横', '横', '横', '竖'], word: '早上' }
+  ],
+
+  /* 英语分级小读本：每篇 3–4 句，用已学单词拼成，可朗读可点词 */
+  readers: [
+    {
+      id: 'mycat', title: 'My Cat', emoji: '🐱',
+      lines: [
+        { en: 'I have a cat.', zh: '我有一只猫。' },
+        { en: 'My cat is small and white.', zh: '我的猫又小又白。' },
+        { en: 'It likes fish and milk.', zh: '它喜欢鱼和牛奶。' },
+        { en: 'I love my cat.', zh: '我爱我的猫。' }
+      ]
+    },
+    {
+      id: 'park', title: 'In the Park', emoji: '🌳',
+      lines: [
+        { en: 'We go to the park.', zh: '我们去公园。' },
+        { en: 'I see a red flower.', zh: '我看见一朵红花。' },
+        { en: 'A bird is in the tree.', zh: '一只鸟在树上。' },
+        { en: 'We are happy.', zh: '我们很开心。' }
+      ]
+    },
+    {
+      id: 'family', title: 'My Family', emoji: '👨‍👩‍👧',
+      lines: [
+        { en: 'This is my family.', zh: '这是我的家人。' },
+        { en: 'My father is tall.', zh: '我的爸爸很高。' },
+        { en: 'My mother is kind.', zh: '我的妈妈很温柔。' },
+        { en: 'I love them.', zh: '我爱他们。' }
+      ]
+    },
+    {
+      id: 'fruit', title: 'Fruit Day', emoji: '🍎',
+      lines: [
+        { en: 'I like fruit.', zh: '我喜欢水果。' },
+        { en: 'I eat an apple and a banana.', zh: '我吃一个苹果和一根香蕉。' },
+        { en: 'The apple is red.', zh: '苹果是红色的。' },
+        { en: 'The banana is yellow.', zh: '香蕉是黄色的。' }
+      ]
+    },
+    {
+      id: 'rain', title: 'Rainy Day', emoji: '🌧️',
+      lines: [
+        { en: 'It is raining today.', zh: '今天下雨了。' },
+        { en: 'I have a yellow coat.', zh: '我有一件黄色的外套。' },
+        { en: 'I jump in the water.', zh: '我在水里跳。' },
+        { en: 'Rain, rain, go away.', zh: '雨啊雨，快走开。' }
+      ]
+    },
+    {
+      id: 'mydog', title: 'My Dog', emoji: '🐶',
+      lines: [
+        { en: 'I have a dog.', zh: '我有一只狗。' },
+        { en: 'My dog is big and brown.', zh: '我的狗又大又棕。' },
+        { en: 'It runs in the park.', zh: '它在公园里跑。' },
+        { en: 'We play every day.', zh: '我们每天都玩。' }
+      ]
+    },
+    {
+      id: 'school', title: 'At School', emoji: '🏫',
+      lines: [
+        { en: 'I go to school.', zh: '我去上学。' },
+        { en: 'I read and write.', zh: '我读书、写字。' },
+        { en: 'I play with my friends.', zh: '我和朋友们玩。' },
+        { en: 'School is fun.', zh: '学校很有趣。' }
+      ]
+    },
+    {
+      id: 'colors', title: 'Colors', emoji: '🌈',
+      lines: [
+        { en: 'The sky is blue.', zh: '天空是蓝色的。' },
+        { en: 'The grass is green.', zh: '小草是绿色的。' },
+        { en: 'The apple is red.', zh: '苹果是红色的。' },
+        { en: 'I like all the colors.', zh: '我喜欢所有的颜色。' }
+      ]
+    },
+    {
+      id: 'bedtime', title: 'Good Night', emoji: '🌙',
+      lines: [
+        { en: 'The moon is up.', zh: '月亮升起来了。' },
+        { en: 'My cat is sleepy.', zh: '我的猫困了。' },
+        { en: 'I put on my pajamas.', zh: '我穿上睡衣。' },
+        { en: 'Good night, everyone.', zh: '大家晚安。' }
+      ]
+    },
+    {
+      id: 'toys', title: 'My Toys', emoji: '🧸',
+      lines: [
+        { en: 'I have many toys.', zh: '我有很多玩具。' },
+        { en: 'My bear is soft.', zh: '我的小熊软软的。' },
+        { en: 'My car is fast.', zh: '我的小汽车很快。' },
+        { en: 'I put them in the box.', zh: '我把它们放进箱子里。' }
+      ]
+    }
+  ],
+
+  /* 数学应用题：模板 + 小数值，保证答案唯一且不超过 10 */
+  storyTemplates: [
+    { emoji: '🍎', unit: '个', name: '苹果', op: '+', text: '{who}有 {a} 个苹果，又得到 {b} 个，一共有几个？', who: ['小明', '小红', '小兔'] },
+    { emoji: '🍬', unit: '颗', name: '糖果', op: '+', text: '{who}有 {a} 颗糖果，妈妈又给了 {b} 颗，一共有几颗？', who: ['小宝', '小丽', '小熊'] },
+    { emoji: '🐟', unit: '条', name: '小鱼', op: '+', text: '池塘里有 {a} 条小鱼，又游来 {b} 条，一共有几条？', who: [''] },
+    { emoji: '🎈', unit: '个', name: '气球', op: '-', text: '{who}有 {a} 个气球，飞走了 {b} 个，还剩几个？', who: ['小刚', '小美', '小猫'] },
+    { emoji: '🍪', unit: '块', name: '饼干', op: '-', text: '盘子里有 {a} 块饼干，吃掉 {b} 块，还剩几块？', who: [''] },
+    { emoji: '🐦', unit: '只', name: '小鸟', op: '-', text: '树上有 {a} 只小鸟，飞走 {b} 只，还剩几只？', who: [''] }
+  ],
+
+  /* ---------- 自然科学 ---------- */
+
+  /* 动物的家：key 与 sciAnimals.home 对应 */
+  sciHomes: {
+    forest: { zh: '森林', emoji: '🌳' },
+    sea: { zh: '大海', emoji: '🌊' },
+    farm: { zh: '农场', emoji: '🚜' },
+    home: { zh: '家里', emoji: '🏠' },
+    grass: { zh: '草地', emoji: '🌾' },
+    tree: { zh: '树上', emoji: '🍃' },
+    pond: { zh: '池塘', emoji: '🪷' },
+    water: { zh: '水里', emoji: '💧' },
+    desert: { zh: '沙漠', emoji: '🏜️' },
+    cave: { zh: '山洞', emoji: '🕳️' },
+    ice: { zh: '冰川', emoji: '🧊' }
+  },
+
+  /* 动物吃什么：key 与 sciAnimals.food 对应 */
+  sciFoods: {
+    grass: { zh: '青草', emoji: '🌿' },
+    meat: { zh: '肉', emoji: '🍖' },
+    fish: { zh: '小鱼', emoji: '🐟' },
+    insect: { zh: '小虫', emoji: '🐛' },
+    fruit: { zh: '果子', emoji: '🍎' },
+    bamboo: { zh: '竹子', emoji: '🎋' },
+    seed: { zh: '种子', emoji: '🌰' },
+    nectar: { zh: '花蜜', emoji: '🌸' },
+    waterplant: { zh: '水草', emoji: '🍃' },
+    leaves: { zh: '树叶', emoji: '🍂' }
+  },
+
+  /* 动物分类：mammal/bird/fish/bug/reptile 用于「谁不是一伙的」 */
+  sciKinds: {
+    mammal: { zh: '哺乳动物', emoji: '🐾' },
+    bird: { zh: '鸟类', emoji: '🪶' },
+    fish: { zh: '鱼类', emoji: '🐟' },
+    bug: { zh: '小虫子', emoji: '🐛' },
+    reptile: { zh: '爬行动物', emoji: '🦎' },
+    amphibian: { zh: '两栖动物', emoji: '🐸' },
+    other: { zh: '其他动物', emoji: '🐚' }
+  },
+
+  /* 动物小百科：zh 名称、emoji 图、kind 分类、home 住处、food 食物、baby 宝宝 */
+  sciAnimals: [
+    { zh: '猫', emoji: '🐱', kind: 'mammal', home: 'home', food: 'fish', baby: '小猫' },
+    { zh: '狗', emoji: '🐶', kind: 'mammal', home: 'home', food: 'meat', baby: '小狗' },
+    { zh: '牛', emoji: '🐮', kind: 'mammal', home: 'farm', food: 'grass', baby: '小牛' },
+    { zh: '马', emoji: '🐴', kind: 'mammal', home: 'farm', food: 'grass', baby: '小马' },
+    { zh: '羊', emoji: '🐑', kind: 'mammal', home: 'farm', food: 'grass', baby: '小羊' },
+    { zh: '猪', emoji: '🐷', kind: 'mammal', home: 'farm', food: 'grass', baby: '小猪' },
+    { zh: '兔子', emoji: '🐰', kind: 'mammal', home: 'grass', food: 'grass', baby: '小兔' },
+    { zh: '鸡', emoji: '🐔', kind: 'bird', home: 'farm', food: 'seed', baby: '小鸡' },
+    { zh: '鸭', emoji: '🦆', kind: 'bird', home: 'pond', food: 'fish', baby: '小鸭' },
+    { zh: '鹅', emoji: '🦢', kind: 'bird', home: 'pond', food: 'grass', baby: '小鹅' },
+    { zh: '小鸟', emoji: '🐦', kind: 'bird', home: 'tree', food: 'insect', baby: '鸟宝宝' },
+    { zh: '猫头鹰', emoji: '🦉', kind: 'bird', home: 'forest', food: 'meat', baby: '小猫头鹰' },
+    { zh: '孔雀', emoji: '🦚', kind: 'bird', home: 'forest', food: 'seed', baby: '小孔雀' },
+    { zh: '大象', emoji: '🐘', kind: 'mammal', home: 'forest', food: 'grass', baby: '小象' },
+    { zh: '老虎', emoji: '🐯', kind: 'mammal', home: 'forest', food: 'meat', baby: '小老虎' },
+    { zh: '狮子', emoji: '🦁', kind: 'mammal', home: 'forest', food: 'meat', baby: '小狮子' },
+    { zh: '猴子', emoji: '🐵', kind: 'mammal', home: 'forest', food: 'fruit', baby: '小猴' },
+    { zh: '熊猫', emoji: '🐼', kind: 'mammal', home: 'forest', food: 'bamboo', baby: '熊猫宝宝' },
+    { zh: '松鼠', emoji: '🐿️', kind: 'mammal', home: 'tree', food: 'seed', baby: '小松鼠' },
+    { zh: '长颈鹿', emoji: '🦒', kind: 'mammal', home: 'forest', food: 'grass', baby: '小长颈鹿' },
+    { zh: '河马', emoji: '🦛', kind: 'mammal', home: 'water', food: 'grass', baby: '小河马' },
+    { zh: '海豚', emoji: '🐬', kind: 'mammal', home: 'sea', food: 'fish', baby: '小海豚' },
+    { zh: '鲸鱼', emoji: '🐳', kind: 'mammal', home: 'sea', food: 'fish', baby: '鲸鱼宝宝' },
+    { zh: '蝴蝶', emoji: '🦋', kind: 'bug', home: 'grass', food: 'nectar', baby: '毛毛虫' },
+    { zh: '蜜蜂', emoji: '🐝', kind: 'bug', home: 'grass', food: 'nectar', baby: '小蜜蜂' },
+    { zh: '蚂蚁', emoji: '🐜', kind: 'bug', home: 'grass', food: 'seed', baby: '小蚂蚁' },
+    { zh: '瓢虫', emoji: '🐞', kind: 'bug', home: 'grass', food: 'insect', baby: '小瓢虫' },
+    { zh: '青蛙', emoji: '🐸', kind: 'amphibian', home: 'pond', food: 'insect', baby: '蝌蚪' },
+    { zh: '鱼', emoji: '🐟', kind: 'fish', home: 'water', food: 'waterplant', baby: '小鱼苗' },
+    { zh: '金鱼', emoji: '🐠', kind: 'fish', home: 'water', food: 'waterplant', baby: '小金鱼' },
+    { zh: '鲨鱼', emoji: '🦈', kind: 'fish', home: 'sea', food: 'fish', baby: '小鲨鱼' },
+    { zh: '乌龟', emoji: '🐢', kind: 'reptile', home: 'pond', food: 'grass', baby: '小乌龟' },
+    { zh: '蛇', emoji: '🐍', kind: 'reptile', home: 'forest', food: 'meat', baby: '小蛇' },
+    { zh: '鳄鱼', emoji: '🐊', kind: 'reptile', home: 'water', food: 'meat', baby: '小鳄鱼' },
+    { zh: '蜗牛', emoji: '🐌', kind: 'other', home: 'grass', food: 'grass', baby: '小蜗牛' },
+    { zh: '螃蟹', emoji: '🦀', kind: 'other', home: 'sea', food: 'fish', baby: '小螃蟹' },
+    { zh: '骆驼', emoji: '🐫', kind: 'mammal', home: 'desert', food: 'grass', baby: '小骆驼' },
+    { zh: '袋鼠', emoji: '🦘', kind: 'mammal', home: 'grass', food: 'leaves', baby: '小袋鼠' },
+    { zh: '斑马', emoji: '🦓', kind: 'mammal', home: 'farm', food: 'leaves', baby: '小斑马' },
+    { zh: '刺猬', emoji: '🦔', kind: 'mammal', home: 'cave', food: 'insect', baby: '小刺猬' },
+    { zh: '蝙蝠', emoji: '🦇', kind: 'mammal', home: 'cave', food: 'fruit', baby: '小蝙蝠' },
+    { zh: '企鹅', emoji: '🐧', kind: 'bird', home: 'ice', food: 'fish', baby: '小企鹅' },
+    { zh: '鹦鹉', emoji: '🦜', kind: 'bird', home: 'tree', food: 'fruit', baby: '小鹦鹉' },
+    { zh: '老鹰', emoji: '🦅', kind: 'bird', home: 'tree', food: 'meat', baby: '小老鹰' },
+    { zh: '章鱼', emoji: '🐙', kind: 'other', home: 'sea', food: 'meat', baby: '小章鱼' }
+  ],
+
+  /* 植物小百科 */
+  sciPlants: [
+    { zh: '大树', emoji: '🌳' },
+    { zh: '小草', emoji: '🌱' },
+    { zh: '向日葵', emoji: '🌻' },
+    { zh: '玫瑰', emoji: '🌹' },
+    { zh: '荷花', emoji: '🪷' },
+    { zh: '仙人掌', emoji: '🌵' },
+    { zh: '竹子', emoji: '🎋' },
+    { zh: '松树', emoji: '🌲' },
+    { zh: '枫树', emoji: '🍁' },
+    { zh: '郁金香', emoji: '🌷' },
+    { zh: '樱花', emoji: '🌸' },
+    { zh: '四叶草', emoji: '🍀' },
+    { zh: '玉米', emoji: '🌽' },
+    { zh: '南瓜', emoji: '🎃' },
+    { zh: '棕榈树', emoji: '🌴' },
+    { zh: '蒲公英', emoji: '🌾' },
+    { zh: '兰花', emoji: '🌺' },
+    { zh: '银杏', emoji: '🍂' },
+    { zh: '芦荟', emoji: '🪴' },
+    { zh: '葡萄', emoji: '🍇' },
+    { zh: '草莓', emoji: '🍓' },
+    { zh: '西瓜', emoji: '🍉' }
+  ],
+
+  /* 我们吃植物的哪一部分：part 必须是六选一 */
+  sciPlantFoods: [
+    { zh: '胡萝卜', emoji: '🥕', part: '根' },
+    { zh: '红薯', emoji: '🍠', part: '根' },
+    { zh: '土豆', emoji: '🥔', part: '茎' },
+    { zh: '莲藕', emoji: '🪷', part: '茎' },
+    { zh: '白菜', emoji: '🥬', part: '叶' },
+    { zh: '菠菜', emoji: '🌿', part: '叶' },
+    { zh: '苹果', emoji: '🍎', part: '果实' },
+    { zh: '番茄', emoji: '🍅', part: '果实' },
+    { zh: '西兰花', emoji: '🥦', part: '花' },
+    { zh: '黄花菜', emoji: '🌼', part: '花' },
+    { zh: '花生', emoji: '🥜', part: '种子' },
+    { zh: '大米', emoji: '🌾', part: '种子' }
+  ],
+  sciPlantParts: ['根', '茎', '叶', '花', '果实', '种子'],
+
+  /* 生长过程：kind 区分动物 / 植物，steps 按顺序排列 */
+  sciGrowth: [
+    { id: 'butterfly', kind: 'animal', zh: '蝴蝶', steps: [{ zh: '卵', emoji: '🥚' }, { zh: '毛毛虫', emoji: '🐛' }, { zh: '蛹', emoji: '🟤' }, { zh: '蝴蝶', emoji: '🦋' }] },
+    { id: 'chick', kind: 'animal', zh: '小鸡', steps: [{ zh: '蛋', emoji: '🥚' }, { zh: '破壳', emoji: '🐣' }, { zh: '小鸡', emoji: '🐤' }, { zh: '大公鸡', emoji: '🐓' }] },
+    { id: 'duck', kind: 'animal', zh: '小鸭', steps: [{ zh: '蛋', emoji: '🥚' }, { zh: '破壳', emoji: '🐣' }, { zh: '小鸭', emoji: '🐤' }, { zh: '大鸭子', emoji: '🦆' }] },
+    { id: 'bee', kind: 'animal', zh: '蜜蜂', steps: [{ zh: '卵', emoji: '🥚' }, { zh: '幼虫', emoji: '🐛' }, { zh: '蛹', emoji: '🟤' }, { zh: '蜜蜂', emoji: '🐝' }] },
+    { id: 'goose', kind: 'animal', zh: '小鹅', steps: [{ zh: '蛋', emoji: '🥚' }, { zh: '破壳', emoji: '🐣' }, { zh: '小鹅', emoji: '🐤' }, { zh: '大鹅', emoji: '🦢' }] },
+    { id: 'silkworm', kind: 'animal', zh: '蚕宝宝', steps: [{ zh: '卵', emoji: '🥚' }, { zh: '蚕宝宝', emoji: '🐛' }, { zh: '结茧', emoji: '🟤' }, { zh: '蚕蛾', emoji: '🦋' }] },
+    { id: 'frog', kind: 'animal', zh: '青蛙', steps: [{ zh: '卵', emoji: '🥚' }, { zh: '蝌蚪', emoji: '🐟' }, { zh: '小青蛙', emoji: '🐸' }, { zh: '大青蛙', emoji: '🐸' }] },
+    { id: 'ladybug', kind: 'animal', zh: '瓢虫', steps: [{ zh: '卵', emoji: '🥚' }, { zh: '幼虫', emoji: '🐛' }, { zh: '蛹', emoji: '🟤' }, { zh: '瓢虫', emoji: '🐞' }] },
+    { id: 'ant', kind: 'animal', zh: '蚂蚁', steps: [{ zh: '卵', emoji: '🥚' }, { zh: '小幼虫', emoji: '🐛' }, { zh: '小蚂蚁', emoji: '🐜' }, { zh: '大蚂蚁', emoji: '🐜' }] },
+    { id: 'sunflower', kind: 'plant', zh: '向日葵', steps: [{ zh: '种子', emoji: '🌰' }, { zh: '发芽', emoji: '🌱' }, { zh: '长叶', emoji: '🌿' }, { zh: '开花', emoji: '🌻' }] },
+    { id: 'apple', kind: 'plant', zh: '苹果', steps: [{ zh: '种子', emoji: '🌰' }, { zh: '小苗', emoji: '🌱' }, { zh: '开花', emoji: '🌸' }, { zh: '结果', emoji: '🍎' }] },
+    { id: 'corn', kind: 'plant', zh: '玉米', steps: [{ zh: '种子', emoji: '🌰' }, { zh: '发芽', emoji: '🌱' }, { zh: '长高', emoji: '🌿' }, { zh: '结玉米', emoji: '🌽' }] },
+    { id: 'pumpkin', kind: 'plant', zh: '南瓜', steps: [{ zh: '种子', emoji: '🌰' }, { zh: '发芽', emoji: '🌱' }, { zh: '开花', emoji: '🌼' }, { zh: '结南瓜', emoji: '🎃' }] },
+    { id: 'lotus', kind: 'plant', zh: '荷花', steps: [{ zh: '莲子', emoji: '🌰' }, { zh: '发芽', emoji: '🌱' }, { zh: '荷叶', emoji: '🍃' }, { zh: '开花', emoji: '🪷' }] },
+    { id: 'tomato', kind: 'plant', zh: '番茄', steps: [{ zh: '种子', emoji: '🌰' }, { zh: '发芽', emoji: '🌱' }, { zh: '开花', emoji: '🌼' }, { zh: '结番茄', emoji: '🍅' }] },
+    { id: 'bean', kind: 'plant', zh: '豆子', steps: [{ zh: '豆子', emoji: '🌰' }, { zh: '发芽', emoji: '🌱' }, { zh: '长叶', emoji: '🌿' }, { zh: '结豆荚', emoji: '🫘' }] },
+    { id: 'strawberry', kind: 'plant', zh: '草莓', steps: [{ zh: '种子', emoji: '🌰' }, { zh: '小苗', emoji: '🌱' }, { zh: '开花', emoji: '🌸' }, { zh: '结草莓', emoji: '🍓' }] },
+    { id: 'rice', kind: 'plant', zh: '水稻', steps: [{ zh: '种子', emoji: '🌰' }, { zh: '发芽', emoji: '🌱' }, { zh: '抽穗', emoji: '🌾' }, { zh: '稻谷', emoji: '🍚' }] }
+  ],
+
+  /* 天气：need 是这种天气出门要带的东西 */
+  sciWeather: [
+    { id: 'sunny', zh: '晴天', emoji: '☀️', need: { zh: '太阳帽', emoji: '👒' } },
+    { id: 'cloudy', zh: '多云', emoji: '⛅' },
+    { id: 'rainy', zh: '雨天', emoji: '🌧️', need: { zh: '雨伞', emoji: '☂️' } },
+    { id: 'snowy', zh: '雪天', emoji: '🌨️', need: { zh: '手套', emoji: '🧤' } },
+    { id: 'windy', zh: '刮风', emoji: '🌬️', need: { zh: '外套', emoji: '🧥' } },
+    { id: 'foggy', zh: '雾天', emoji: '🌫️', need: { zh: '口罩', emoji: '😷' } },
+    { id: 'typhoon', zh: '台风', emoji: '🌀', need: { zh: '雨靴', emoji: '👢' } },
+    { id: 'stormy', zh: '打雷', emoji: '⛈️' },
+    { id: 'hot', zh: '炎热', emoji: '🥵', need: { zh: '水壶', emoji: '🥤' } },
+    { id: 'cold', zh: '寒冷', emoji: '🥶', need: { zh: '围巾', emoji: '🧣' } },
+    { id: 'hail', zh: '冰雹', emoji: '🧊', need: { zh: '安全帽', emoji: '⛑️' } },
+    { id: 'sandstorm', zh: '沙尘暴', emoji: '🌪️', need: { zh: '护目镜', emoji: '🥽' } }
+  ],
+
+  /* 四季：sight 看到的变化、wear 穿什么、activity 适合做什么 */
+  sciSeasons: [
+    { id: 'spring', zh: '春天', emoji: '🌸', sight: '花儿开了，小草变绿了', wear: '薄外套', wearEmoji: '🧥', activity: { zh: '放风筝', emoji: '🪁' } },
+    { id: 'summer', zh: '夏天', emoji: '☀️', sight: '太阳火辣辣，知了在叫', wear: '短袖短裤', wearEmoji: '👕', activity: { zh: '游泳', emoji: '🏊' } },
+    { id: 'autumn', zh: '秋天', emoji: '🍂', sight: '树叶变黄，果子熟了', wear: '长袖外套', wearEmoji: '🧥', activity: { zh: '收果子', emoji: '🍎' } },
+    { id: 'winter', zh: '冬天', emoji: '❄️', sight: '下雪了，水结冰了', wear: '棉袄和手套', wearEmoji: '🧤', activity: { zh: '堆雪人', emoji: '⛄' } }
+  ],
+
+  /* 植物小知识：q 题干、a 正确答案、w 干扰项、hint 讲解 */
+  sciPlantFacts: [
+    { q: '植物长大最需要什么？', a: '阳光和水', w: ['糖果和玩具', '石头和沙子', '电视和手机'], hint: '植物要晒太阳、喝水，才能长得高高的。' },
+    { q: '种子种在哪里最容易发芽？', a: '有阳光的泥土里', w: ['干净的玻璃上', '黑黑的抽屉里', '干燥的沙子里'], hint: '种子喜欢泥土、阳光和水。' },
+    { q: '花儿渴了，我们应该做什么？', a: '给它浇水', w: ['给它唱歌', '把它拔出来', '放进冰箱里'], hint: '花儿渴了要喝水，浇水别太多哦。' },
+    { q: '向日葵最喜欢朝着什么？', a: '太阳', w: ['月亮', '路灯', '电视'], hint: '向日葵的花盘会跟着太阳转。' },
+    { q: '小树苗长成大树，需要什么？', a: '阳光、水和泥土', w: ['每天摇一摇', '把它藏起来', '一直浇热水'], hint: '阳光、水和泥土，是植物长大的三样宝贝。' },
+    { q: '树叶为什么大多是绿色的？', a: '叶子里有绿色的东西', w: ['被谁涂了颜料', '因为天空是蓝的', '因为土是绿的'], hint: '叶子里有绿色的“叶绿素”，能帮植物晒太阳。' },
+    { q: '植物的根藏在哪里？', a: '泥土里面', w: ['花朵上面', '叶子上面', '天空中'], hint: '根在泥土里，帮植物站得稳、喝到水。' },
+    { q: '蒲公英的种子靠什么搬家？', a: '风一吹就飞走', w: ['自己走路', '小鱼带走', '汽车运走'], hint: '蒲公英的小伞兵被风一吹，就飘到新地方安家。' },
+    { q: '仙人掌的叶子为什么变成刺？', a: '为了少丢掉水分', w: ['为了扎气球', '因为它生病了', '因为想变漂亮'], hint: '仙人掌住在沙漠，刺能帮它少失去水分。' },
+    { q: '给花浇水，最好浇在哪里？', a: '浇在根部的泥土里', w: ['浇在花朵上', '浇在叶子上', '浇在窗台上'], hint: '水浇到根部，根才能喝到水。' }
+  ],
+
+  /* 天气安全小知识 */
+  sciWeatherFacts: [
+    { q: '打雷闪电的时候，应该怎么做？', a: '待在屋里，关好窗户', w: ['站在大树下面', '去水边玩耍', '举着铁棍跑'], hint: '打雷时要待在屋里，离大树和水边远一点。' },
+    { q: '下雪路很滑，走路要怎样？', a: '慢慢走，看清脚下', w: ['飞快地跑', '闭着眼睛走', '边跑边跳'], hint: '雪地滑，慢慢走才不会摔倒。' },
+    { q: '太阳很晒的时候出门，要做什么？', a: '戴帽子，多喝水', w: ['穿厚棉袄', '站在太阳下不动', '一整天不喝水'], hint: '太阳大的时候要遮阳、多喝水。' },
+    { q: '下雨天过马路，要怎么做？', a: '看清红绿灯，走斑马线', w: ['不看车就冲过去', '把伞压低挡住眼睛', '在马路上跑'], hint: '雨天看不清，更要看清信号灯，走斑马线。' },
+    { q: '刮大风的时候，应该怎样做？', a: '待在屋里，远离大树和广告牌', w: ['去放风筝', '躲在大树下面', '站到广告牌底下'], hint: '大风天要待在屋里，小心被吹落的东西砸到。' },
+    { q: '雾很大的时候出门，要注意什么？', a: '戴口罩，慢慢走', w: ['闭着眼睛跑', '在马路上玩', '大声喊就不怕了'], hint: '雾天看不清路，要戴口罩、慢慢走，跟着大人。' },
+    { q: '天气很热的时候，身体最需要什么？', a: '多喝水，少晒太久', w: ['穿厚棉袄', '一直跑来跑去', '不喝水也不休息'], hint: '天热容易出汗，要多喝水、在阴凉处休息。' },
+    { q: '看到天上有乌云，还打起了闪电，应该？', a: '赶快回家，躲进屋里', w: ['去楼顶看看', '到树下等雨停', '在小河边玩水'], hint: '雷雨要来时，要快点回到安全的屋里。' },
+    { q: '冬天很冷，出门前要做什么？', a: '穿好棉衣，戴好帽子和手套', w: ['穿短袖出门', '光着脚跑出去', '用冷水洗头'], hint: '冷天要穿暖和，别让身体着凉。' },
+    { q: '天气预报说今天有雨，出门前要？', a: '带上一把雨伞', w: ['把伞留在家里', '只穿拖鞋', '把窗户全打开'], hint: '提前看天气预报，带上雨伞就不会被淋湿。' }
+  ],
+
+  /* 天空与地球：topic 区分 sky（天空）/ space（太空）/ earth（地球家园） */
+  sciSpaceFacts: [
+    { topic: 'sky', q: '白天，天上发光发热的是什么？', a: { zh: '太阳', emoji: '☀️' }, w: [{ zh: '月亮', emoji: '🌙' }, { zh: '星星', emoji: '⭐' }, { zh: '云朵', emoji: '☁️' }], hint: '太阳出来了，白天就亮堂堂、暖洋洋的。' },
+    { topic: 'sky', q: '晚上，天上圆圆亮亮的是什么？', a: { zh: '月亮', emoji: '🌙' }, w: [{ zh: '太阳', emoji: '☀️' }, { zh: '彩虹', emoji: '🌈' }, { zh: '飞机', emoji: '✈️' }], hint: '月亮在晚上出来，有时候圆、有时候弯。' },
+    { topic: 'sky', q: '太阳落山以后，天会怎么样？', a: '慢慢变黑', w: ['变成绿色', '一下子变亮', '下起糖果'], hint: '太阳落山，白天结束，天就慢慢黑了。' },
+    { topic: 'sky', q: '晚上抬头，天上一闪一闪的是什么？', a: { zh: '星星', emoji: '⭐' }, w: [{ zh: '雨滴', emoji: '🌧️' }, { zh: '树叶', emoji: '🍃' }, { zh: '沙子', emoji: '🏖️' }], hint: '星星离我们很远很远，一闪一闪像小灯。' },
+    { topic: 'sky', q: '雨过天晴，天上出现的七色桥是什么？', a: { zh: '彩虹', emoji: '🌈' }, w: [{ zh: '太阳', emoji: '☀️' }, { zh: '月亮', emoji: '🌙' }, { zh: '云朵', emoji: '☁️' }], hint: '雨后的阳光照在小水珠上，就变成了彩虹。' },
+    { topic: 'sky', q: '天上的白云是什么变的？', a: '许多小水珠', w: ['棉花糖', '白纸片', '小虫子'], hint: '水变成小水珠飘在空中，就是白云。' },
+    { topic: 'space', q: '我们住的地方叫什么？', a: { zh: '地球', emoji: '🌍' }, w: [{ zh: '月亮', emoji: '🌙' }, { zh: '太阳', emoji: '☀️' }, { zh: '云朵', emoji: '☁️' }], hint: '我们都住在地球上，地球是我们的家。' },
+    { topic: 'space', q: '太阳每天从哪一边升起来？', a: '东边', w: ['西边', '北边', '南边'], hint: '太阳从东边升起，从西边落下。' },
+    { topic: 'space', q: '月亮是绕着谁转的？', a: { zh: '地球', emoji: '🌍' }, w: [{ zh: '太阳', emoji: '☀️' }, { zh: '火星', emoji: '🔴' }, { zh: '星星', emoji: '⭐' }], hint: '月亮是地球的好朋友，一直绕着地球转。' },
+    { topic: 'space', q: '地球表面，海洋多还是陆地多？', a: '海洋更多', w: ['陆地更多', '一样多', '全是陆地'], hint: '地球大部分被海水盖着，所以从太空看是蓝色的。' },
+    { topic: 'space', q: '太阳离我们远不远？', a: '很远很远', w: ['就在头顶上', '一伸手就摸到', '和树一样高'], hint: '太阳离我们非常远，所以看起来只有盘子那么大。' },
+    { topic: 'space', q: '宇航员飞到太空，要穿什么？', a: { zh: '宇航服', emoji: '🧑‍🚀' }, w: [{ zh: '睡衣', emoji: '🩳' }, { zh: '雨衣', emoji: '🧥' }, { zh: '校服', emoji: '👕' }], hint: '太空里没有空气，宇航员要穿宇航服保护自己。' },
+    { topic: 'earth', q: '地球上的水有什么用？', a: '喝、洗澡、浇花都要用', w: ['只能用来玩', '一点用也没有', '只能用来洗手'], hint: '水是生命之源，动物、植物和我们都需要水。' },
+    { topic: 'earth', q: '树木对我们有什么好处？', a: '让空气更新鲜', w: ['让空气变脏', '挡住所有阳光', '一点好处也没有'], hint: '树木会吸收脏空气，放出新鲜氧气。' },
+    { topic: 'earth', q: '用完的纸巾应该放在哪里？', a: { zh: '垃圾桶', emoji: '🗑️' }, w: [{ zh: '草地', emoji: '🌿' }, { zh: '小河', emoji: '🏞️' }, { zh: '马路中间', emoji: '🛣️' }], hint: '垃圾要丢进垃圾桶，环境才会干干净净。' },
+    { topic: 'earth', q: '地球上的水是有限的，我们应该？', a: '节约用水', w: ['一直开着水龙头', '把水倒掉玩', '洗完手不关水'], hint: '随手关水龙头，就是不浪费水的好办法。' },
+    { topic: 'earth', q: '看到公园里漂亮的花，应该怎么做？', a: '看一看，不摘它', w: ['摘下来带走', '踩上一脚', '全部拔掉'], hint: '花是给大家看的，留在枝头才最美。' },
+    { topic: 'earth', q: '我们每时每刻都要呼吸什么？', a: { zh: '空气', emoji: '💨' }, w: [{ zh: '沙子', emoji: '🏖️' }, { zh: '石头', emoji: '🪨' }, { zh: '铁块', emoji: '🔩' }], hint: '空气看不见摸不着，但我们一刻也离不开它。' },
+    { topic: 'sky', q: '风来了，树叶会怎么样？', a: '被吹得摇来摇去', w: ['变成石头', '自己走回家', '一动不动'], hint: '风一吹，树叶就沙沙响、摇个不停。' },
+    { topic: 'sky', q: '冬天从天上飘下来白白的是什么？', a: { zh: '雪花', emoji: '❄️' }, w: [{ zh: '树叶', emoji: '🍃' }, { zh: '沙子', emoji: '🏖️' }, { zh: '羽毛', emoji: '🪶' }], hint: '天很冷的时候，小水珠变成雪花飘下来。' },
+    { topic: 'space', q: '月亮什么时候最容易被我们看到？', a: '晚上', w: ['中午', '早上刚起床时', '下大雨时'], hint: '晚上天黑了，月亮就亮亮地挂在天上。' },
+    { topic: 'space', q: '太阳落下的那一边叫什么？', a: '西边', w: ['东边', '北边', '天上'], hint: '太阳从东边升起，往西边落下。' },
+    { topic: 'earth', q: '洗手打肥皂的时候，水龙头应该？', a: '先关掉，冲的时候再开', w: ['一直开着不管', '开到最大玩水', '把水泼到地上'], hint: '随手关水，一点一滴都不浪费。' },
+    { topic: 'earth', q: '家里的旧纸箱、空瓶子可以怎么做？', a: '分类放进回收箱', w: ['扔到小河里', '埋在花坛里', '从窗户扔出去'], hint: '可回收的东西分好类，就能再变成新东西。' },
+    { topic: 'sky', q: '天上一块块灰灰的云，常常带来什么？', a: { zh: '雨水', emoji: '🌧️' }, w: [{ zh: '糖果', emoji: '🍬' }, { zh: '沙子', emoji: '🏖️' }, { zh: '树叶', emoji: '🍃' }], hint: '乌云里装了很多小水珠，落下来就是雨。' },
+    { topic: 'sky', q: '太阳光和月光，哪一个让我们觉得更暖和？', a: '太阳光', w: ['月光', '一样暖和', '都不会暖和'], hint: '太阳自己会发光发热，月亮只是反射太阳的光。' },
+    { topic: 'space', q: '白天为什么看不到星星？', a: '太阳太亮，星星的光被盖住了', w: ['星星白天睡觉了', '星星飞到别处去了', '星星变成了云'], hint: '星星一直都在，只是白天天太亮，看不清楚。' },
+    { topic: 'space', q: '从太空看地球，地球是什么颜色的？', a: '蓝色的', w: ['红色的', '黑色的', '黄色的'], hint: '地球表面很多海水，从太空看就是一颗蓝色的星球。' },
+    { topic: 'earth', q: '在公园里看到小蚂蚁搬家，我们应该？', a: '安静地看一看，不打扰', w: ['一脚踩下去', '把水倒上去', '用手捏它'], hint: '小蚂蚁也是生命，看一看就好，别伤害它。' },
+    { topic: 'earth', q: '树木被砍太多，会带来什么麻烦？', a: '空气变差，水土流失', w: ['空气更新鲜', '河水更干净', '天气更凉快'], hint: '树能固住泥土、净化空气，所以要爱护树木。' }
+  ],
+
+  /* 身体部位 */
+  sciBodyParts: [
+    { zh: '眼睛', emoji: '👁️' },
+    { zh: '耳朵', emoji: '👂' },
+    { zh: '鼻子', emoji: '👃' },
+    { zh: '嘴巴', emoji: '👄' },
+    { zh: '手', emoji: '✋' },
+    { zh: '脚', emoji: '🦶' },
+    { zh: '牙齿', emoji: '🦷' },
+    { zh: '舌头', emoji: '👅' },
+    { zh: '手臂', emoji: '💪' },
+    { zh: '腿', emoji: '🦵' }
+  ],
+
+  /* 五感与身体本领 */
+  sciSenseFacts: [
+    { q: '我们用什么看东西？', a: '眼睛', hint: '眼睛让我们看见颜色和形状。' },
+    { q: '我们用什么听声音？', a: '耳朵', hint: '耳朵帮我们听见说话声和音乐。' },
+    { q: '我们用什么闻到花香？', a: '鼻子', hint: '鼻子能闻出香味和臭味。' },
+    { q: '我们用什么尝出甜味？', a: '舌头', hint: '舌头上有味蕾，能尝出酸甜苦咸。' },
+    { q: '我们用什么拿东西？', a: '手', hint: '手可以拿、可以摸，还能画画。' },
+    { q: '我们用什么走路？', a: '脚', hint: '脚撑着身体，让我们走、跑、跳。' },
+    { q: '我们用什么嚼东西？', a: '牙齿', hint: '牙齿把食物嚼碎，肚子才好消化。' },
+    { q: '我们用什么鼓掌？', a: '手', hint: '两只手拍在一起，就发出了响亮的掌声。' },
+    { q: '我们用什么踢球？', a: '脚', hint: '脚很有力，能踢球，也能跳得很高。' },
+    { q: '我们笑起来时，哪里会露出小白牙？', a: '嘴巴', hint: '嘴巴一张一合，笑起来就露出小白牙。' }
+  ],
+
+  /* 生活习惯：good 为 true 是好习惯，false 是坏习惯 */
+  sciHabits: [
+    { zh: '饭前洗手', emoji: '🧼', good: true },
+    { zh: '早晚刷牙', emoji: '🪥', good: true },
+    { zh: '早睡早起', emoji: '🛏️', good: true },
+    { zh: '多吃蔬菜', emoji: '🥦', good: true },
+    { zh: '按时喝水', emoji: '💧', good: true },
+    { zh: '每天运动', emoji: '🏃', good: true },
+    { zh: '长时间看手机', emoji: '📱', good: false },
+    { zh: '一次吃很多糖', emoji: '🍬', good: false },
+    { zh: '不洗手就吃饭', emoji: '🍚', good: false },
+    { zh: '很晚才睡觉', emoji: '🕛', good: false },
+    { zh: '只吃肉不吃菜', emoji: '🥩', good: false },
+    { zh: '用脏手揉眼睛', emoji: '👀', good: false },
+    { zh: '玩具玩完收好', emoji: '🧸', good: true },
+    { zh: '每天户外活动', emoji: '⚽', good: true },
+    { zh: '睡前吃很多零食', emoji: '🍪', good: false },
+    { zh: '长时间看电视', emoji: '📺', good: false }
+  ],
+
+  /* 年龄档：difficulty 收缩/放宽题目上限，cap 是推荐学到的关卡数（超出仍可挑战） */
+  ageBands: [
+    { id: 'age-3', name: '3–4 岁', desc: '先认识身边的东西，题目更小更慢', icon: '🐣', difficulty: 0.8, cap: 4 },
+    { id: 'age-4', name: '4–5 岁', desc: '认字母、认汉字，开始简单拼读', icon: '🐤', difficulty: 1, cap: 7 },
+    { id: 'age-5', name: '5–6 岁', desc: '拼读、算术、看图说话全面练习', icon: '🐥', difficulty: 1.15, cap: 99 }
+  ],
+
+  /* 课程体系：每个学科由若干阶段组成，从认知识记到综合运用 */
+  curriculum: {
+    numbers: {
+      key: 'numbers',
+      name: '数字乐园',
+      icon: '🔢',
+      color: '#4fb6ff',
+      tag: '数一数 · 认数字',
+      intro: [
+        '先伸出小手指，指着图上的东西一个一个数。',
+        '数到最后一个，就是一共有几个。',
+        '数字排队时，后面的数字总比前面大 1 哦。'
+      ],
+      stages: [
+        { id: 'num-1', name: '认识 1~3', desc: '看着图片数一数，认识 1、2、3', icon: '1️⃣', qtypes: ['count', 'quantity'], min: 1, max: 3 },
+        { id: 'num-2', name: '认识 4~6', desc: '更大的数字也能数清楚', icon: '4️⃣', qtypes: ['count', 'quantity'], min: 3, max: 6 },
+        { id: 'num-3', name: '认识 7~10', desc: '一直数到十，不重不漏', icon: '🔟', qtypes: ['count', 'quantity'], min: 6, max: 10 },
+        { id: 'num-7', name: '认识 11~20', desc: '从十一一直数到二十', icon: '🔢', qtypes: ['count', 'next'], min: 11, max: 20 },
+        { id: 'num-4', name: '数字接龙', desc: '后面跟着的数字是几呢', icon: '🔗', qtypes: ['next'], max: 20 },
+        { id: 'num-5', name: '比一比大小', desc: '谁多谁少，谁大谁小', icon: '⚖️', qtypes: ['compare'], max: 20 },
+        { id: 'num-6', name: '找规律', desc: '发现排队的小秘密', icon: '🧩', qtypes: ['pattern'], max: 20 },
+        { id: 'num-8', name: '接龙到 50', desc: '一路数到五十，看看谁最快', icon: '🚀', qtypes: ['next'], max: 50 },
+        { id: 'num-9', name: '比大小 50', desc: '五十以内的数字比一比', icon: '🏆', qtypes: ['compare'], max: 50 },
+        { id: 'num-10', name: '找规律 50', desc: '每次加 1 或加 2 都能发现吗', icon: '🎯', qtypes: ['pattern'], max: 50 }
+      ]
+    },
+    letters: {
+      key: 'letters',
+      name: '字母王国',
+      icon: '🔤',
+      color: '#8b6cff',
+      tag: 'ABC · 认字母',
+      intro: [
+        '每个字母都有大写和小写，比如 A 和 a。',
+        '字母有自己的名字和发音，点小喇叭可以多听几遍。',
+        '一次只学 5 个字母，记住以后再学下一组。'
+      ],
+      stages: [
+        { id: 'let-a', name: 'A B C D E', desc: '先认识最前面的 5 个字母', icon: '🅰️', qtypes: ['letterListen', 'letterCase'], range: [0, 4] },
+        { id: 'let-b', name: 'F G H I J', desc: '接着认识第 6~10 个字母', icon: '🅱️', qtypes: ['letterListen', 'letterCase'], range: [5, 9] },
+        { id: 'let-c', name: 'K L M N O', desc: '跟着字母歌唱下去', icon: '🔠', qtypes: ['letterListen', 'letterCase'], range: [10, 14] },
+        { id: 'let-d', name: 'P Q R S T', desc: '再认识 5 个新朋友', icon: '🔡', qtypes: ['letterListen', 'letterCase'], range: [15, 19] },
+        { id: 'let-e', name: 'U V W X Y Z', desc: '最后 6 个字母也学会啦', icon: '🔤', qtypes: ['letterListen', 'letterCase'], range: [20, 25] },
+        { id: 'let-f', name: '大小写配对', desc: '把大写和小写配成一对', icon: '🔁', qtypes: ['letterCase'], range: [0, 25] },
+        { id: 'let-g', name: '字母排队', desc: 'A B C… 下一个是谁', icon: '🚂', qtypes: ['letterOrder'], range: [0, 23] },
+        { id: 'let-h', name: '全字母听音', desc: '26 个字母里听出是哪个', icon: '🎧', qtypes: ['letterListen'], range: [0, 25] },
+        { id: 'let-i', name: '全字母排队', desc: '整个字母表都能接下去', icon: '🎡', qtypes: ['letterOrder'], range: [0, 25] }
+      ]
+    },
+    words: {
+      key: 'words',
+      name: '单词花园',
+      icon: '🐻',
+      color: '#ff9f43',
+      tag: '看图 · 学英语',
+      intro: [
+        '先看看图片是什么，再猜猜它在英语里叫什么。',
+        '点小喇叭听一听，然后跟着大声读出来。',
+        '读错了也没关系，多听几次就会啦。'
+      ],
+      stages: [
+        { id: 'word-animal', name: '动物朋友', desc: '猫、狗、鱼、熊……', icon: '🐱', qtypes: ['wordPic', 'wordListen'], theme: 'animal' },
+        { id: 'word-food', name: '好吃的', desc: '苹果、香蕉、牛奶……', icon: '🍎', qtypes: ['wordPic', 'wordListen'], theme: 'food' },
+        { id: 'word-item', name: '身边的东西', desc: '书、帽子、小床……', icon: '📖', qtypes: ['wordPic', 'wordListen'], theme: 'item' },
+        { id: 'word-nature', name: '大自然', desc: '太阳、月亮、大树……', icon: '🌳', qtypes: ['wordPic', 'wordListen'], theme: 'nature' },
+        { id: 'word-vehicle', name: '车车与家', desc: '汽车、火车、房子……', icon: '🚗', qtypes: ['wordPic', 'wordListen'], theme: 'vehicle' },
+        { id: 'word-color', name: '颜色', desc: '红色、蓝色、绿色……', icon: '🎨', qtypes: ['wordPic', 'wordListen'], theme: 'color' },
+        { id: 'word-body', name: '身体', desc: '眼睛、鼻子、小手……', icon: '👀', qtypes: ['wordPic', 'wordListen'], theme: 'body' },
+        { id: 'word-action', name: '动作', desc: '跑、跳、吃、睡……', icon: '🏃', qtypes: ['wordPic', 'wordListen'], theme: 'action' },
+        { id: 'word-weather', name: '天气', desc: '晴天、雨天、雪花……', icon: '🌦️', qtypes: ['wordPic', 'wordListen'], theme: 'weather' },
+        { id: 'word-feeling', name: '心情', desc: '开心、难过、生气……', icon: '😊', qtypes: ['wordPic', 'wordListen'], theme: 'feeling' },
+        { id: 'word-school', name: '在学校', desc: '书、笔、书包……', icon: '🎒', qtypes: ['wordPic', 'wordListen'], theme: 'school' },
+        { id: 'word-all-2', name: '看图说词', desc: '所有主题的图片一起来', icon: '🖼️', qtypes: ['wordPic'], theme: 'all' },
+        { id: 'word-all', name: '听音选图', desc: '综合复习全部单词', icon: '👂', qtypes: ['wordMeaning'], theme: 'all' },
+        { id: 'word-phonics', name: '自然拼读', desc: '听听开头是哪个字母', icon: '🔤', qtypes: ['phonics'], theme: 'all' },
+        { id: 'word-listen2', name: '听音选词', desc: '听到英语，选出中文意思', icon: '🎧', qtypes: ['wordListen'], theme: 'all' },
+        { id: 'word-sentence', name: '看图说句', desc: '看图选出正确的英语短句', icon: '💬', qtypes: ['sentence'], theme: 'all', lang: 'en', maxLen: 26 },
+        { id: 'word-sentence-long', name: '长句挑战', desc: '更长的英语句子也不怕', icon: '📝', qtypes: ['sentence'], theme: 'all', lang: 'en', minLen: 27 },
+        { id: 'word-rhyme', name: '英文儿歌', desc: '跟着短儿歌接下句', icon: '🎵', qtypes: ['rhyme'], theme: 'all', lang: 'en', maxLines: 4 },
+        { id: 'word-rhyme-long', name: '儿歌进阶', desc: '更长的英文儿歌接龙', icon: '🎶', qtypes: ['rhyme'], theme: 'all', lang: 'en', minLines: 5 },
+        { id: 'word-reader', name: '分级小读本', desc: '读一篇小故事，说说每句的意思', icon: '📖', qtypes: ['reader'], theme: 'all' }
+      ]
+    },
+    math: {
+      key: 'math',
+      name: '算术工坊',
+      icon: '➕',
+      color: '#3ecf8e',
+      tag: '加减 · 乘除',
+      intro: [
+        '加法就是把两堆东西合在一起，数一数一共多少。',
+        '减法就是从一堆里拿走一些，看看还剩多少。',
+        '数不清的时候，可以用手指或者圆点帮忙。',
+        '乘法就是几个一样的数加在一起，比如 3 个 2 就是 2 + 2 + 2。',
+        '除法就是把东西平均分成几份，看看每份有几个。'
+      ],
+      stages: [
+        { id: 'math-add5', name: '5 以内加法', desc: '用圆点帮忙数一数', icon: '➕', qtypes: ['add'], max: 5 },
+        { id: 'math-sub5', name: '5 以内减法', desc: '拿走一些，还剩几个', icon: '➖', qtypes: ['sub'], max: 5 },
+        { id: 'math-add10', name: '10 以内加法', desc: '两只手就能数清楚', icon: '🔟', qtypes: ['add'], max: 10 },
+        { id: 'math-sub10', name: '10 以内减法', desc: '十以内的减法练习', icon: '9️⃣', qtypes: ['sub'], max: 10 },
+        { id: 'math-mix', name: '加减混合', desc: '加法和减法一起来', icon: '🌀', qtypes: ['add', 'sub'], max: 10 },
+        { id: 'math-story', name: '故事应用题', desc: '读小故事，算一算答案', icon: '📖', qtypes: ['story'], max: 10 },
+        { id: 'math-add20', name: '20 以内加法', desc: '挑战更大的数字', icon: '💪', qtypes: ['add'], max: 20 },
+        { id: 'math-sub20', name: '20 以内减法', desc: '二十以内的减法练习', icon: '🧮', qtypes: ['sub'], max: 20 },
+        { id: 'math-mix20', name: '20 以内混合', desc: '大数字的加减也不怕', icon: '🌪️', qtypes: ['add', 'sub'], max: 20 },
+        { id: 'math-mul5', name: '乘法口诀 2~5', desc: '几个相同的数加在一起', icon: '✖️', qtypes: ['mul'], max: 5 },
+        { id: 'math-div5', name: '5 以内除法', desc: '平均分一分，每份有几个', icon: '➗', qtypes: ['div'], max: 5 },
+        { id: 'math-mul9', name: '乘法口诀 2~9', desc: '九九乘法表挑战', icon: '✳️', qtypes: ['mul'], max: 9 },
+        { id: 'math-div9', name: '9 以内除法', desc: '用乘法口诀反着想', icon: '🔢', qtypes: ['div'], max: 9 },
+        { id: 'math-muldiv', name: '乘除混合', desc: '乘法和除法一起来', icon: '🔀', qtypes: ['mul', 'div'], max: 9 },
+        { id: 'math-all', name: '四则大闯关', desc: '加、减、乘、除综合挑战', icon: '🏅', qtypes: ['add', 'sub', 'mul', 'div'], max: 10 }
+      ]
+    },
+    geometry: {
+      key: 'geometry',
+      name: '图形空间',
+      icon: '🔺',
+      color: '#38c6c9',
+      tag: '认图形 · 辨方位',
+      intro: [
+        '圆形、正方形、三角形，都有自己特别的样子。',
+        '用小手沿着边摸一摸，就知道它有几条边。',
+        '上下、前后、左右，说清楚位置就更容易找到啦。'
+      ],
+      stages: [
+        { id: 'math-shape', name: '认识图形', desc: '圆形、正方形、三角形、长方形、五角星、椭圆', icon: '🔺', qtypes: ['shape'], shapes: ['circle', 'square', 'triangle', 'rect', 'star', 'oval'] },
+        { id: 'math-shape-more', name: '更多图形', desc: '五边形、六边形也来啦', icon: '🔷', qtypes: ['shape'] },
+        { id: 'math-shape-name', name: '说出名字', desc: '看到图形，说出它的名字', icon: '🗣️', qtypes: ['shape'], mode: 'name' },
+        { id: 'math-shape-pick', name: '找出图形', desc: '听到名字，找出哪个是它', icon: '🔍', qtypes: ['shape'], mode: 'pick' },
+        { id: 'math-space', name: '上下左右', desc: '看看谁在谁的哪一边', icon: '🧭', qtypes: ['space'], dirs: ['up', 'down', 'left', 'right'] },
+        { id: 'math-space-all', name: '八个方位', desc: '上、下、左、右、四个角', icon: '🧩', qtypes: ['space'] },
+        { id: 'math-space-diag', name: '斜着找', desc: '左上、右上、左下、右下', icon: '↗️', qtypes: ['space'], dirs: ['upLeft', 'upRight', 'downLeft', 'downRight'] }
+      ]
+    },
+    lifemath: {
+      key: 'lifemath',
+      name: '生活数学',
+      icon: '🧺',
+      color: '#ffb347',
+      tag: '分类 · 比较 · 时间 · 钱币',
+      intro: [
+        '把一样的东西放在一起，就是分类。',
+        '长短、高矮、轻重，比一比就知道。',
+        '钟表上的短针指几，就是几点钟。',
+        '买东西要用钱，一元等于十角哦。'
+      ],
+      stages: [
+        { id: 'math-sort', name: '找出不同', desc: '哪一个和一伙的不一样', icon: '🧺', qtypes: ['sort'], mode: 'odd' },
+        { id: 'math-sort-size', name: '比大小', desc: '哪个最大，哪个最小', icon: '📦', qtypes: ['sort'], mode: 'size' },
+        { id: 'math-measure', name: '比长短', desc: '谁长谁短，比一比就知道', icon: '📏', qtypes: ['measure'], mode: 'long' },
+        { id: 'math-measure-tall', name: '比高矮', desc: '谁高谁矮，站在一起看看', icon: '🦒', qtypes: ['measure'], mode: 'tall' },
+        { id: 'math-measure-heavy', name: '比轻重', desc: '谁重谁轻，掂一掂', icon: '⚖️', qtypes: ['measure'], mode: 'heavy' },
+        { id: 'math-time', name: '认识整点', desc: '看看钟表上是几点', icon: '🕐', qtypes: ['time'] },
+        { id: 'math-time-half', name: '认识半点', desc: '长针指着 6，就是半点', icon: '🕜', qtypes: ['time'], half: true },
+        { id: 'math-money', name: '两枚硬币', desc: '两枚硬币一共多少钱', icon: '🪙', qtypes: ['money'], level: 2 },
+        { id: 'math-money2', name: '三枚硬币', desc: '三枚硬币也能算清楚', icon: '💰', qtypes: ['money'], level: 3 }
+      ]
+    },
+    pinyin: {
+      key: 'pinyin',
+      name: '拼音小路',
+      icon: '🎵',
+      color: '#ff7fb5',
+      tag: '声母 · 拼读',
+      intro: [
+        '拼音就像汉字的名字，读准声调很重要。',
+        '先听小喇叭，再跟着慢慢读一遍。',
+        '声母和韵母手拉手，就能拼出一个字。'
+      ],
+      stages: [
+        { id: 'py-initial1', name: '声母 b p m f', desc: '最常用的 4 个声母', icon: '🅱️', qtypes: ['pyInitial'], group: [0, 3] },
+        { id: 'py-initial2', name: '声母 d t n l', desc: '再来 4 个声母', icon: '🅳', qtypes: ['pyInitial'], group: [4, 7] },
+        { id: 'py-initial3', name: '声母 g k h j q x', desc: '一口气认识 6 个', icon: '🅶', qtypes: ['pyInitial'], group: [8, 13] },
+        { id: 'py-initial4', name: '声母 zh ch sh r', desc: '翘舌音要卷起小舌头', icon: '🔤', qtypes: ['pyInitial'], group: [14, 17] },
+        { id: 'py-initial5', name: '声母 z c s y w', desc: '平舌音和半元音', icon: '🔡', qtypes: ['pyInitial'], group: [18, 22] },
+        { id: 'py-final1', name: '单韵母', desc: 'a o e i u ü 六个韵母', icon: '🅰️', qtypes: ['pyFinal'], group: [0, 5] },
+        { id: 'py-final2', name: '复韵母', desc: 'ai ei ui ao ou iu ie üe er', icon: '🌈', qtypes: ['pyFinal'], group: [6, 14] },
+        { id: 'py-final3', name: '鼻韵母', desc: 'an en in un ün ang eng ing ong', icon: '🎵', qtypes: ['pyFinal'], group: [15, 23] },
+        { id: 'py-syllable', name: '拼一拼', desc: '声母 + 韵母 = 一个字', icon: '🧩', qtypes: ['pySyllable'] },
+        { id: 'py-tone', name: '四声调', desc: '一声平、二声扬、三声拐弯、四声降', icon: '🎶', qtypes: ['pyTone'] },
+        { id: 'py-char-num', name: '数字拼音', desc: '一二三……的拼音是哪个', icon: '1️⃣', qtypes: ['pyChar'], cat: 'num' },
+        { id: 'py-char-color', name: '颜色拼音', desc: '红黄蓝绿的拼音', icon: '🎨', qtypes: ['pyChar'], cat: 'color' },
+        { id: 'py-char-life', name: '生活拼音', desc: '身边东西的拼音', icon: '🚪', qtypes: ['pyChar'], cat: 'life' },
+        { id: 'py-char-action', name: '动作拼音', desc: '看听说跑的拼音', icon: '🏃', qtypes: ['pyChar'], cat: 'action' },
+        { id: 'py-char', name: '看字选拼音', desc: '认识的字，拼音是哪个', icon: '📖', qtypes: ['pyChar'], cat: 'all' }
+      ]
+    },
+    hanzi: {
+      key: 'hanzi',
+      name: '汉字森林',
+      icon: '📖',
+      color: '#ff8a5c',
+      tag: '认字 · 汉字',
+      intro: [
+        '汉字像一幅小图画，看看它像什么东西。',
+        '先听读音，再看图猜一猜意思。',
+        '每天认识几个字，慢慢就能认识很多啦。'
+      ],
+      stages: [
+        { id: 'hz-num', name: '数字汉字', desc: '一、二、三……十', icon: '🔢', qtypes: ['hzPic', 'hzMeaning'], cat: 'num' },
+        { id: 'hz-nature', name: '大自然', desc: '日月山水火木花草', icon: '🌿', qtypes: ['hzPic', 'hzMeaning'], cat: 'nature' },
+        { id: 'hz-nature2', name: '自然二', desc: '天地风雪海河林光', icon: '🌊', qtypes: ['hzPic', 'hzMeaning'], cat: 'nature2' },
+        { id: 'hz-animal', name: '小动物', desc: '鸟鱼马牛羊兔猫狗', icon: '🐰', qtypes: ['hzPic', 'hzMeaning'], cat: 'animal' },
+        { id: 'hz-body', name: '我的身体', desc: '人口手目耳心头足', icon: '✋', qtypes: ['hzPic', 'hzMeaning'], cat: 'body' },
+        { id: 'hz-life', name: '生活用品', desc: '车门书笔米果灯树', icon: '🚪', qtypes: ['hzPic', 'hzMeaning'], cat: 'life' },
+        { id: 'hz-food', name: '好吃的', desc: '饭面蛋奶菜糖茶', icon: '🍚', qtypes: ['hzPic', 'hzMeaning'], cat: 'food' },
+        { id: 'hz-color', name: '颜色', desc: '红黄绿蓝白黑紫粉', icon: '🌈', qtypes: ['hzPic', 'hzMeaning'], cat: 'color' },
+        { id: 'hz-family', name: '家人', desc: '爸妈家爱哥姐弟妹', icon: '👨‍👩‍👧', qtypes: ['hzPic', 'hzMeaning'], cat: 'family' },
+        { id: 'hz-school', name: '在学校', desc: '字学校本图数歌', icon: '📚', qtypes: ['hzPic', 'hzMeaning'], cat: 'school' },
+        { id: 'hz-place', name: '在哪里', desc: '园店院站房室桥路', icon: '🏙️', qtypes: ['hzPic', 'hzMeaning'], cat: 'place' },
+        { id: 'hz-time', name: '时间汉字', desc: '早午晚年今明时分', icon: '⏰', qtypes: ['hzPic', 'hzMeaning'], cat: 'time' },
+        { id: 'hz-action', name: '动作', desc: '看听说吃喝跑跳', icon: '🏃', qtypes: ['hzPic', 'hzMeaning'], cat: 'action' },
+        { id: 'hz-listen', name: '听音找字', desc: '听到哪个字，就点哪个字', icon: '👂', qtypes: ['hzListen'], cat: 'all' }
+      ]
+    },
+    expression: {
+      key: 'expression',
+      name: '表达工坊',
+      icon: '💬',
+      color: '#ff6f91',
+      tag: '笔顺 · 说话 · 儿歌',
+      intro: [
+        '写字有顺序，先横后竖、从上到下。',
+        '看图说一句完整的话，把谁、在做什么说清楚。',
+        '跟着儿歌有节奏地念，越念越顺口。'
+      ],
+      stages: [
+        { id: 'hz-stroke', name: '笔顺', desc: '一笔一笔，按顺序写字', icon: '✍️', qtypes: ['stroke'], cat: 'all' },
+        { id: 'hz-sentence', name: '看图说话', desc: '看图选出正确的短句子', icon: '💬', qtypes: ['sentence'], cat: 'all', lang: 'zh', maxLen: 8 },
+        { id: 'hz-rhyme-short', name: '短儿歌', desc: '跟着短儿歌接下句', icon: '🎵', qtypes: ['rhyme'], cat: 'all', lang: 'zh', maxLines: 4 },
+        { id: 'hz-sentence-long', name: '说长句子', desc: '把一句话说完整、说清楚', icon: '🗣️', qtypes: ['sentence'], cat: 'all', lang: 'zh', minLen: 9 },
+        { id: 'hz-rhyme', name: '儿歌童谣', desc: '跟着长儿歌一直念下去', icon: '🎼', qtypes: ['rhyme'], cat: 'all', lang: 'zh', minLines: 5 }
+      ]
+    },
+    animals: {
+      key: 'animals',
+      name: '动物世界',
+      icon: '🐾',
+      color: '#f78c6b',
+      tag: '认识 · 住处 · 食物 · 宝宝',
+      intro: [
+        '每种动物都有自己的家：有的住在森林，有的住在大海。',
+        '有的动物爱吃青草，有的爱吃小鱼，还有的爱吃小虫子。',
+        '动物宝宝和爸爸妈妈长得不太一样，比如毛毛虫会变成蝴蝶。'
+      ],
+      stages: [
+        { id: 'sci-animal-pic', name: '认识动物', desc: '看图认一认，这是谁呀', icon: '🦁', qtypes: ['sciPic', 'sciName'] },
+        { id: 'sci-animal-riddle', name: '猜猜我是谁', desc: '听个谜语，猜猜是哪种动物', icon: '❓', qtypes: ['sciRiddle'] },
+        { id: 'sci-animal-home', name: '动物的家', desc: '它住在森林、农场还是大海', icon: '🏠', qtypes: ['sciHome'] },
+        { id: 'sci-animal-food', name: '动物吃什么', desc: '青草、小鱼还是小虫子', icon: '🍖', qtypes: ['sciFood'] },
+        { id: 'sci-animal-baby', name: '动物宝宝', desc: '小鸡的宝宝叫什么', icon: '🐣', qtypes: ['sciBaby'] },
+        { id: 'sci-animal-class', name: '动物分类', desc: '谁和谁是一伙的', icon: '🧩', qtypes: ['sciClass'] },
+        { id: 'sci-animal-grow', name: '长大过程', desc: '从卵到蝴蝶的过程', icon: '🦋', qtypes: ['sciGrowth'], group: 'animal' },
+        { id: 'sci-animal-all', name: '动物大闯关', desc: '认动物、找家、找食物都会啦', icon: '🏆', qtypes: ['sciPic', 'sciName', 'sciHome', 'sciFood', 'sciClass'] }
+      ]
+    },
+    plants: {
+      key: 'plants',
+      name: '植物花园',
+      icon: '🌿',
+      color: '#5fbf7f',
+      tag: '认植物 · 部位 · 生长',
+      intro: [
+        '大树、小草、花朵都是植物，它们会慢慢长大。',
+        '植物有根、茎、叶、花、果实和种子，我们吃的不一样。',
+        '植物需要阳光、水和泥土，才会长得又高又壮。'
+      ],
+      stages: [
+        { id: 'sci-plant-pic', name: '认识植物', desc: '看图认一认这些植物', icon: '🌳', qtypes: ['sciPic', 'sciName'], group: 'plant' },
+        { id: 'sci-plant-part', name: '吃哪一部分', desc: '胡萝卜吃的是根还是叶', icon: '🥕', qtypes: ['sciPlantPart'] },
+        { id: 'sci-plant-need', name: '植物需要什么', desc: '阳光、水，还是糖果', icon: '☀️', qtypes: ['sciFact'], pool: 'sciPlantFacts' },
+        { id: 'sci-plant-grow', name: '植物生长', desc: '种子怎样变成花朵', icon: '🌱', qtypes: ['sciGrowth'], group: 'plant' },
+        { id: 'sci-plant-all', name: '植物大集合', desc: '认植物、说部位都会啦', icon: '🌻', qtypes: ['sciPic', 'sciName', 'sciPlantPart'], group: 'plant' },
+        { id: 'sci-plant-review', name: '植物小博士', desc: '部位和小知识一起来', icon: '🎓', qtypes: ['sciPlantPart', 'sciFact'], pool: 'sciPlantFacts', group: 'plant' }
+      ]
+    },
+    weather: {
+      key: 'weather',
+      name: '天气季节',
+      icon: '🌦️',
+      color: '#5aa9e6',
+      tag: '天气 · 穿衣 · 四季',
+      intro: [
+        '晴天有太阳，雨天要打伞，雪天要戴手套。',
+        '一年有春、夏、秋、冬四个季节，穿的衣服不一样。',
+        '天气变化时要保护好自己，打雷就待在屋里。'
+      ],
+      stages: [
+        { id: 'sci-weather-pic', name: '认天气', desc: '晴天、雨天还是下雪', icon: '☀️', qtypes: ['sciWeather'] },
+        { id: 'sci-weather-gear', name: '天气穿什么', desc: '这种天气出门要带什么', icon: '☂️', qtypes: ['sciGear'] },
+        { id: 'sci-season', name: '四季变化', desc: '春天花开，秋天叶黄', icon: '🍂', qtypes: ['sciSeason'] },
+        { id: 'sci-weather-safe', name: '天气安全', desc: '打雷下雨怎样保护自己', icon: '⛈️', qtypes: ['sciFact'], pool: 'sciWeatherFacts' },
+        { id: 'sci-weather-all', name: '天气大集合', desc: '认天气、穿衣服、辨四季', icon: '🌈', qtypes: ['sciWeather', 'sciGear', 'sciSeason'] },
+        { id: 'sci-weather-review', name: '天气小博士', desc: '季节和安全知识一起来', icon: '🎓', qtypes: ['sciSeason', 'sciFact'], pool: 'sciWeatherFacts' }
+      ]
+    },
+    space: {
+      key: 'space',
+      name: '地球太空',
+      icon: '🌍',
+      color: '#8b7cf6',
+      tag: '白天黑夜 · 太阳月亮 · 地球',
+      intro: [
+        '白天太阳出来，晚上月亮和星星出来。',
+        '我们都住在地球上，地球是我们的家。',
+        '节约用水、不乱扔垃圾，就是在保护地球。'
+      ],
+      stages: [
+        { id: 'sci-sky', name: '白天和黑夜', desc: '太阳、月亮和星星', icon: '🌙', qtypes: ['sciSpace'], topic: 'sky' },
+        { id: 'sci-space-fact', name: '太阳和月亮', desc: '它们离我们有多远', icon: '☀️', qtypes: ['sciSpace'], topic: 'space' },
+        { id: 'sci-earth', name: '保护地球', desc: '怎样做才是爱护家园', icon: '♻️', qtypes: ['sciSpace'], topic: 'earth' },
+        { id: 'sci-space-all', name: '天空大集合', desc: '白天黑夜和太阳月亮', icon: '🌌', qtypes: ['sciSpace'], topics: ['sky', 'space'] },
+        { id: 'sci-space-review', name: '太空小博士', desc: '天空、太空、地球全都考', icon: '🚀', qtypes: ['sciSpace'], topics: ['sky', 'space', 'earth'] }
+      ]
+    },
+    body: {
+      key: 'body',
+      name: '身体奥秘',
+      icon: '🧒',
+      color: '#ef6f8e',
+      tag: '五官 · 感官 · 好习惯',
+      intro: [
+        '眼睛看、耳朵听、鼻子闻、舌头尝，身体本领真不少。',
+        '牙齿帮我们嚼碎食物，手和脚带我们做游戏。',
+        '饭前洗手、早晚刷牙、早睡早起，都是好习惯。'
+      ],
+      stages: [
+        { id: 'sci-body-part', name: '认识身体', desc: '眼睛、耳朵、鼻子在哪里', icon: '👁️', qtypes: ['sciBodyPart'] },
+        { id: 'sci-body-sense', name: '五官本领', desc: '用什么看、用什么听', icon: '👂', qtypes: ['sciSense'] },
+        { id: 'sci-body-habit', name: '好习惯', desc: '哪些习惯对身体好', icon: '🪥', qtypes: ['sciHabit'] },
+        { id: 'sci-body-all', name: '身体大集合', desc: '认部位、说感官本领', icon: '💪', qtypes: ['sciBodyPart', 'sciSense'] },
+        { id: 'sci-body-review', name: '健康小博士', desc: '部位、感官、好习惯全考', icon: '🏅', qtypes: ['sciBodyPart', 'sciSense', 'sciHabit'] }
+      ]
+    }
+  },
+
+  /* 学科分组：首页按大模块展示，进入关卡页再用子模块标签切换
+     以后新增学科，只要往 subjects 里加 key（或单开一组）即可自动出现在首页 */
+  subjectGroups: [
+    {
+      key: 'group-math',
+      name: '数学乐园',
+      icon: '🧮',
+      color: '#4fb6ff',
+      tag: '认数字 · 加减 · 图形',
+      subjects: ['numbers', 'math', 'geometry', 'lifemath']
+    },
+    {
+      key: 'group-english',
+      name: '英语乐园',
+      icon: '🔤',
+      color: '#8b6cff',
+      tag: '认字母 · 学单词',
+      subjects: ['letters', 'words']
+    },
+    {
+      key: 'group-chinese',
+      name: '语文乐园',
+      icon: '📖',
+      color: '#ff7fb5',
+      tag: '拼音 · 认汉字 · 表达',
+      subjects: ['pinyin', 'hanzi', 'expression']
+    },
+    {
+      key: 'group-nature',
+      name: '自然探索',
+      icon: '🌱',
+      color: '#3ecf8e',
+      tag: '动物 · 植物 · 天气 · 太空',
+      subjects: ['animals', 'plants', 'weather', 'space', 'body']
+    }
+  ],
+
+  // 商店
+  shop: {
+    food: [
+      { id: 'acorn', name: '小橡果', emoji: '🌰', price: 3, hunger: 15, mood: 8, say: '橡果香香的，谢谢你！' },
+      { id: 'apple', name: '红苹果', emoji: '🍎', price: 4, hunger: 22, mood: 6, say: '苹果脆脆的，真好吃！' },
+      { id: 'carrot', name: '胡萝卜', emoji: '🥕', price: 6, hunger: 28, mood: 3, say: '吃了胡萝卜，眼睛亮晶晶！' },
+      { id: 'milk', name: '热牛奶', emoji: '🥛', price: 8, hunger: 18, mood: 10, say: '喝牛奶，长高高～' },
+      { id: 'cake', name: '小蛋糕', emoji: '🍰', price: 12, hunger: 20, mood: 22, say: '哇！是甜甜的蛋糕！' },
+      { id: 'banana', name: '香蕉', emoji: '🍌', price: 5, hunger: 20, mood: 7, say: '香蕉软软的，一口一口吃掉啦～' },
+      { id: 'bread', name: '小面包', emoji: '🍞', price: 7, hunger: 24, mood: 8, say: '面包香喷喷，肚子饱饱的！' },
+      { id: 'berry', name: '小草莓', emoji: '🍓', price: 10, hunger: 16, mood: 14, say: '草莓酸酸甜甜，好喜欢！' },
+      { id: 'juice', name: '果汁', emoji: '🧃', price: 9, hunger: 14, mood: 12, say: '咕嘟咕嘟，果汁喝光啦～' },
+      { id: 'cookie', name: '小饼干', emoji: '🍪', price: 11, hunger: 18, mood: 18, say: '咔嚓咔嚓，饼干真脆！' },
+      { id: 'icecream', name: '冰淇淋', emoji: '🍦', price: 15, hunger: 12, mood: 24, say: '冰冰凉凉，好开心呀！' }
+    ],
+    decor: [
+      { id: 'balloon', name: '气球', emoji: '🎈', price: 20, size: 42, tags: ['fly', 'play'], say: '气球飘呀飘，小龙猫追着跑～' },
+      { id: 'flower', name: '小花', emoji: '🌸', price: 25, size: 36, tags: ['nature'], say: '小花摇一摇，香味飘满小屋！' },
+      { id: 'starLamp', name: '星星灯', emoji: '🌟', price: 35, size: 38, tags: ['light'], say: '星星灯亮起来，小屋暖融融的～' },
+      { id: 'tree', name: '小树', emoji: '🌳', price: 40, size: 56, tags: ['nature'], say: '小树沙沙响，像在和你打招呼～' },
+      { id: 'horse', name: '摇摇马', emoji: '🐴', price: 50, size: 50, tags: ['play', 'animal'], say: '摇摇马晃呀晃，要不要坐上来？' },
+      { id: 'rainbow', name: '彩虹', emoji: '🌈', price: 60, size: 48, tags: ['nature', 'light'], say: '彩虹弯弯的，像一座小桥！' },
+      { id: 'castle', name: '小城堡', emoji: '🏰', price: 90, size: 58, tags: ['play'], say: '城堡里住着一位小龙猫国王～' },
+      { id: 'kite', name: '风筝', emoji: '🪁', price: 30, size: 44, tags: ['fly', 'play'], say: '风筝飞得高高的，线要抓紧哦！' },
+      { id: 'duck', name: '小黄鸭', emoji: '🦆', price: 32, size: 40, tags: ['animal'], say: '嘎嘎嘎，小黄鸭在和你说话～' },
+      { id: 'mushroom', name: '小蘑菇', emoji: '🍄', price: 28, size: 34, tags: ['nature'], say: '蘑菇伞下凉凉的，很适合躲雨～' },
+      { id: 'bunny', name: '小兔子', emoji: '🐇', price: 45, size: 42, tags: ['animal'], say: '小兔子蹦蹦跳，想和你做朋友！' },
+      { id: 'carousel', name: '旋转木马', emoji: '🎠', price: 70, size: 52, tags: ['play'], say: '旋转木马转呀转，音乐响起来啦～' },
+      { id: 'plant', name: '小盆栽', emoji: '🪴', price: 22, size: 36, tags: ['nature'], say: '小盆栽喝饱水，叶子绿油油！' },
+      { id: 'butterfly', name: '小蝴蝶', emoji: '🦋', price: 38, size: 32, tags: ['fly', 'animal'], say: '小蝴蝶拍了拍翅膀，落在你手上～' },
+      { id: 'lantern', name: '小灯笼', emoji: '🏮', price: 34, size: 40, tags: ['light'], say: '灯笼红红的，小屋亮堂堂！' },
+      { id: 'piano', name: '小钢琴', emoji: '🎹', price: 75, size: 50, tags: ['play'], say: '叮咚叮咚，弹一首给你听～' },
+      { id: 'rocket', name: '小火箭', emoji: '🚀', price: 85, size: 46, tags: ['fly'], say: '三、二、一，火箭要发射啦！' },
+      { id: 'tent', name: '小帐篷', emoji: '⛺', price: 55, size: 54, tags: ['play'], say: '钻进帐篷里，就像去露营～' }
+    ],
+    bg: [
+      { id: 'meadow', name: '青青草地', emoji: '🌿', price: 0 },
+      { id: 'night', name: '星空夜晚', emoji: '🌙', price: 50 },
+      { id: 'sea', name: '海底世界', emoji: '🐠', price: 80 },
+      { id: 'candy', name: '糖果乐园', emoji: '🍭', price: 120 },
+      { id: 'forest', name: '森林清晨', emoji: '🌲', price: 100 },
+      { id: 'snow', name: '雪地小镇', emoji: '⛄', price: 140 }
+    ]
+  }
+};

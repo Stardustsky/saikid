@@ -4,6 +4,6 @@
   "private": true,
   "description": "小龙猫乐园 · 纯静态幼儿学习 PWA",
   "scripts": {
-    "test": "node tools/audit.js"
+    "test": "node tools/audit.js && node tools/test_quiz.js"
   }
 }

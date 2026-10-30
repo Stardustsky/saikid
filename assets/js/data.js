@@ -660,7 +660,27 @@ const DATA = {
     { c: '工', p: 'gōng', first: '横', st: ['横', '竖', '横'], word: '做工' },
     { c: '半', p: 'bàn', first: '点', st: ['点', '撇', '横', '横', '竖'], word: '一半' },
     { c: '关', p: 'guān', first: '点', st: ['点', '点', '横', '横', '撇', '捺'], word: '关门' },
-    { c: '见', p: 'jiàn', first: '竖', st: ['竖', '折', '撇', '钩'], word: '看见' }
+    { c: '见', p: 'jiàn', first: '竖', st: ['竖', '折', '撇', '钩'], word: '看见' },
+    { c: '五', p: 'wǔ', first: '横', st: ['横', '竖', '折', '横'], word: '五个' },
+    { c: '六', p: 'liù', first: '点', st: ['点', '横', '撇', '点'], word: '六个' },
+    { c: '七', p: 'qī', first: '横', st: ['横', '钩'], word: '七个' },
+    { c: '九', p: 'jiǔ', first: '撇', st: ['撇', '钩'], word: '九个' },
+    { c: '了', p: 'le', first: '折', st: ['折', '钩'], word: '好了' },
+    { c: '也', p: 'yě', first: '折', st: ['折', '竖', '钩'], word: '也是' },
+    { c: '禾', p: 'hé', first: '撇', st: ['撇', '横', '竖', '撇', '捺'], word: '禾苗' },
+    { c: '井', p: 'jǐng', first: '横', st: ['横', '横', '撇', '竖'], word: '水井' },
+    { c: '正', p: 'zhèng', first: '横', st: ['横', '竖', '横', '竖', '横'], word: '正确' },
+    { c: '去', p: 'qù', first: '横', st: ['横', '竖', '横', '折', '点'], word: '出去' },
+    { c: '来', p: 'lái', first: '横', st: ['横', '点', '撇', '横', '竖', '撇', '捺'], word: '来了' },
+    { c: '果', p: 'guǒ', first: '竖', st: ['竖', '折', '横', '横', '竖', '撇', '捺'], word: '水果' },
+    { c: '目', p: 'mù', first: '竖', st: ['竖', '折', '横', '横', '横'], word: '目光' },
+    { c: '虫', p: 'chóng', first: '竖', st: ['竖', '折', '横', '竖', '提', '点'], word: '小虫' },
+    { c: '只', p: 'zhǐ', first: '竖', st: ['竖', '折', '横', '撇', '点'], word: '一只' },
+    { c: '东', p: 'dōng', first: '横', st: ['横', '折', '钩', '撇', '点'], word: '东方' },
+    { c: '里', p: 'lǐ', first: '竖', st: ['竖', '折', '横', '横', '竖', '横', '横'], word: '里面' },
+    { c: '公', p: 'gōng', first: '撇', st: ['撇', '捺', '折', '点'], word: '公园' },
+    { c: '飞', p: 'fēi', first: '钩', st: ['钩', '撇', '点'], word: '飞机' },
+    { c: '早', p: 'zǎo', first: '竖', st: ['竖', '折', '横', '横', '横', '竖'], word: '早上' }
   ],
 
   /* 英语分级小读本：每篇 3–4 句，用已学单词拼成，可朗读可点词 */
@@ -708,6 +728,51 @@ const DATA = {
         { en: 'I have a yellow coat.', zh: '我有一件黄色的外套。' },
         { en: 'I jump in the water.', zh: '我在水里跳。' },
         { en: 'Rain, rain, go away.', zh: '雨啊雨，快走开。' }
+      ]
+    },
+    {
+      id: 'mydog', title: 'My Dog', emoji: '🐶',
+      lines: [
+        { en: 'I have a dog.', zh: '我有一只狗。' },
+        { en: 'My dog is big and brown.', zh: '我的狗又大又棕。' },
+        { en: 'It runs in the park.', zh: '它在公园里跑。' },
+        { en: 'We play every day.', zh: '我们每天都玩。' }
+      ]
+    },
+    {
+      id: 'school', title: 'At School', emoji: '🏫',
+      lines: [
+        { en: 'I go to school.', zh: '我去上学。' },
+        { en: 'I read and write.', zh: '我读书、写字。' },
+        { en: 'I play with my friends.', zh: '我和朋友们玩。' },
+        { en: 'School is fun.', zh: '学校很有趣。' }
+      ]
+    },
+    {
+      id: 'colors', title: 'Colors', emoji: '🌈',
+      lines: [
+        { en: 'The sky is blue.', zh: '天空是蓝色的。' },
+        { en: 'The grass is green.', zh: '小草是绿色的。' },
+        { en: 'The apple is red.', zh: '苹果是红色的。' },
+        { en: 'I like all the colors.', zh: '我喜欢所有的颜色。' }
+      ]
+    },
+    {
+      id: 'bedtime', title: 'Good Night', emoji: '🌙',
+      lines: [
+        { en: 'The moon is up.', zh: '月亮升起来了。' },
+        { en: 'My cat is sleepy.', zh: '我的猫困了。' },
+        { en: 'I put on my pajamas.', zh: '我穿上睡衣。' },
+        { en: 'Good night, everyone.', zh: '大家晚安。' }
+      ]
+    },
+    {
+      id: 'toys', title: 'My Toys', emoji: '🧸',
+      lines: [
+        { en: 'I have many toys.', zh: '我有很多玩具。' },
+        { en: 'My bear is soft.', zh: '我的小熊软软的。' },
+        { en: 'My car is fast.', zh: '我的小汽车很快。' },
+        { en: 'I put them in the box.', zh: '我把它们放进箱子里。' }
       ]
     }
   ],

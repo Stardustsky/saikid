@@ -37,6 +37,14 @@ const MiniGame = (() => {
     odd: {
       name: '火眼金睛', icon: '🔍', color: '#a06cd5', tag: '观察力', desc: '用放大镜找出不一样的那个',
       sticker: '🔍', story: '草丛里混进了一个不一样的图案，用放大镜把它找出来！'
+    },
+    sort: {
+      name: '分类小能手', icon: '🧺', color: '#7bbf66', tag: '分类', desc: '按住小动物，拖进对的种类篮子',
+      sticker: '🧺', story: '动物们走丢啦，把每只小动物拖进它那一类的篮子里吧～'
+    },
+    order: {
+      name: '排排队', icon: '📶', color: '#ef7d4d', tag: '排序', desc: '按数量从少到多，把卡片拖进格子',
+      sticker: '🪜', story: '果子、星星和气球混在一起啦，按数量从少到多排好队！'
     }
   };
 
@@ -49,7 +57,9 @@ const MiniGame = (() => {
     rocket: [8, 10, 12],
     match: [4, 5, 6],
     catch: [8, 9, 10],
-    odd: [6, 7, 8]
+    odd: [6, 7, 8],
+    sort: [6, 7, 8],
+    order: [4, 5, 6]
   };
   const OPTS = {
     mole: [3, 4, 5],
@@ -487,7 +497,9 @@ const MiniGame = (() => {
     fish: { sel: '.fishie', line: '钓起写着答案的那条小鱼' },
     rocket: { sel: '.rocket-pod', line: '点写着答案的星球，让火箭飞过去' },
     catch: { sel: '.basket', line: '左右移动小篮子，接住写着答案的果子' },
-    odd: { sel: '.odd-cell[data-odd="1"]', line: '点那个不一样的图案' }
+    odd: { sel: '.odd-cell[data-odd="1"]', line: '点那个不一样的图案' },
+    sort: { line: '按住小动物，拖进对的那个篮子' },
+    order: { line: '从少到多，把卡片拖进 1、2、3 格' }
   };
 
   let coachTimer = 0;
@@ -713,7 +725,7 @@ const MiniGame = (() => {
       el.textContent = (run.type === 'match' ? '🧩 ' : '🃏 ') + run.matched + '/' + run.total;
       return;
     }
-    const icon = { fish: '🐟 ', rocket: '🚀 ', catch: '🧺 ', odd: '🔍 ' }[run.type] || '✅ ';
+    const icon = { fish: '🐟 ', rocket: '🚀 ', catch: '🧺 ', odd: '🔍 ', sort: '🧺 ', order: '📶 ' }[run.type] || '✅ ';
     el.textContent = icon + run.correct + '/' + run.total;
   }
 
@@ -788,7 +800,9 @@ const MiniGame = (() => {
 
   function nextRound() {
     if (!run || run.done || paused) return;
-    if (run.type !== 'odd') run.question = makeQuestion(run.subject, run.optCount);
+    if (run.type !== 'odd' && run.type !== 'sort' && run.type !== 'order') {
+      run.question = makeQuestion(run.subject, run.optCount);
+    }
     // 第一题不打幸运标记，让孩子先看懂规则
     run.lucky = !!(LUCKY_GAMES[run.type] && run.round > 0 && Math.random() < LUCKY_RATE);
     const start = {
@@ -797,7 +811,9 @@ const MiniGame = (() => {
       fish: fishRound,
       rocket: rocketRound,
       catch: catchRound,
-      odd: oddRound
+      odd: oddRound,
+      sort: sortRound,
+      order: orderRound
     }[run.type];
     if (start) {
       start();
@@ -1934,6 +1950,236 @@ const MiniGame = (() => {
     if (run.round === 0) coachFirstRound();
   }
 
+  /* ---------- 分类小能手：拖拽动物到种类篮子 ---------- */
+
+  /* 通用拖拽：按住 .drag-chip 拖到 zoneSel 区域再松手 */
+  function bindDropBoard(board, zoneSel, onDrop) {
+    if (!board) return;
+    let drag = null;
+    function zoneAt(cx, cy) {
+      let hit = null;
+      board.querySelectorAll(zoneSel).forEach(el => {
+        if (hit) return;
+        const r = el.getBoundingClientRect();
+        if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) hit = el;
+      });
+      return hit;
+    }
+    function clearHot() {
+      board.querySelectorAll(zoneSel).forEach(el => el.classList.remove('hot'));
+    }
+    board.onpointerdown = e => {
+      const chip = e.target.closest('.drag-chip');
+      if (!chip || !run || run.done || run.locked || chip.classList.contains('placed')) return;
+      drag = { chip, id: e.pointerId, x0: e.clientX, y0: e.clientY, moved: false };
+      try { chip.setPointerCapture(e.pointerId); } catch (err) { /* 忽略 */ }
+      chip.classList.add('dragging');
+    };
+    board.onpointermove = e => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0;
+      const dy = e.clientY - drag.y0;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) drag.moved = true;
+      drag.chip.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.05)';
+      const zone = zoneAt(e.clientX, e.clientY);
+      board.querySelectorAll(zoneSel).forEach(el => el.classList.toggle('hot', el === zone));
+    };
+    function end(e) {
+      if (!drag || (e.pointerId != null && e.pointerId !== drag.id)) return;
+      const d = drag;
+      drag = null;
+      d.chip.classList.remove('dragging');
+      d.chip.style.transform = '';
+      clearHot();
+      const zone = zoneAt(e.clientX, e.clientY);
+      if (zone && d.moved) onDrop(d.chip, zone);
+    }
+    board.onpointerup = end;
+    board.onpointercancel = end;
+  }
+
+  function startSort() {
+    const board = boardSetup('sort-board',
+      '<div class="sort-wrap">' +
+        '<p class="sort-title"></p>' +
+        '<div class="sort-tray"></div>' +
+        '<div class="sort-bins"></div>' +
+      '</div>', GAMES.sort.color);
+
+    run.round = 0;
+    run.correct = 0;
+    run.wrong = 0;
+    run.combo = 0;
+    setScore();
+    setProgress();
+
+    bindDropBoard(board, '.sort-bin', (chip, zone) => {
+      if (!run || run.done || run.locked) return;
+      run.locked = true;
+      if (zone.dataset.bin === run.sortKind) {
+        zone.appendChild(chip);
+        chip.classList.add('placed');
+        const c = centerOf(zone);
+        AudioFX.correct();
+        burstAt(c, ['#c9efb5', '#7bbf66', '#ffffff'], { count: 16, speed: 200, gravity: 600, size: 5, shape: 'spark' });
+        roundDone(true);
+      } else {
+        wrongTap(chip);
+        shake(0.9);
+        const rightZone = board.querySelector('.sort-bin[data-bin="' + run.sortKind + '"]');
+        if (rightZone) rightZone.classList.add('right-zone');
+        setHint('🧺 「' + run.sortKindName + '」才对，看看它属于哪一类～');
+        roundDone(false);
+      }
+    });
+
+    sortRound();
+  }
+
+  function sortRound() {
+    if (!run || run.done) return;
+    run.locked = false;
+    const board = $('#mini-board');
+    const animal = pick(DATA.sciAnimals);
+    const right = animal.kind;
+    const hasKind = k => DATA.sciAnimals.some(a => a.kind === k);
+    const others = shuffle(Object.keys(DATA.sciKinds).filter(k => k !== right && hasKind(k))).slice(0, 2);
+    const bins = shuffle([right, ...others]);
+    run.sortKind = right;
+    run.sortKindName = (DATA.sciKinds[right] || {}).zh || '';
+
+    const title = board.querySelector('.sort-title');
+    if (title) title.innerHTML = '把 <b>' + animal.zh + '</b> 拖进对的篮子';
+    const tray = board.querySelector('.sort-tray');
+    if (tray) {
+      tray.innerHTML = '<div class="drag-chip sort-chip">' + Art.em(animal.emoji) +
+        '<span class="sort-name">' + animal.zh + '</span></div>';
+    }
+    const binsEl = board.querySelector('.sort-bins');
+    if (binsEl) {
+      binsEl.innerHTML = bins.map(k => {
+        const info = DATA.sciKinds[k] || { zh: k, emoji: '🐾' };
+        return '<div class="sort-bin" data-bin="' + k + '">' +
+          '<span class="sort-bin-ic">' + Art.em(info.emoji) + '</span>' +
+          '<span class="sort-bin-name">' + info.zh + '</span></div>';
+      }).join('');
+    }
+    setHint('🧺 ' + animal.zh + ' 是哪一类？按住拖一拖');
+    AudioFX.speak('把' + animal.zh + '拖进对的篮子', 'zh-CN');
+    if (run.round === 0) coachFirstRound();
+  }
+
+  /* ---------- 排排队：按数量从少到多拖进格子 ---------- */
+
+  function startOrder() {
+    boardSetup('order-board',
+      '<div class="order-wrap">' +
+        '<p class="order-title">按数量从少到多，把卡片放进格子</p>' +
+        '<div class="order-slots"></div>' +
+        '<div class="order-tray"></div>' +
+      '</div>', GAMES.order.color);
+
+    run.round = 0;
+    run.correct = 0;
+    run.wrong = 0;
+    run.combo = 0;
+    run.orderWrong = 0;
+    run.orderPlaced = 0;
+    setScore();
+    setProgress();
+
+    bindDropBoard($('#mini-board'), '.order-slot', orderDrop);
+    orderRound();
+  }
+
+  function orderRound() {
+    if (!run || run.done) return;
+    run.locked = false;
+    run.orderWrong = 0;
+    run.orderPlaced = 0;
+    const board = $('#mini-board');
+    const emojis = shuffle(DATA.countEmojis).slice(0, 3);
+    let a = rnd(1, 2);
+    let b = a + rnd(1, 2);
+    let c = b + rnd(1, 2);
+    run.orderCards = [
+      { count: a, emoji: emojis[0] },
+      { count: b, emoji: emojis[1] },
+      { count: c, emoji: emojis[2] }
+    ];
+
+    const slots = board.querySelector('.order-slots');
+    if (slots) {
+      slots.innerHTML = ['1️⃣', '2️⃣', '3️⃣'].map((ic, i) =>
+        '<div class="order-slot" data-slot="' + i + '">' +
+          '<span class="order-slot-ic">' + ic + '</span>' +
+          '<span class="order-slot-tip">' + (i === 0 ? '最少' : i === 2 ? '最多' : '中间') + '</span>' +
+        '</div>').join('');
+    }
+    const tray = board.querySelector('.order-tray');
+    if (tray) {
+      tray.innerHTML = shuffle(run.orderCards.slice()).map(card =>
+        '<div class="drag-chip order-chip" data-count="' + card.count + '">' +
+          '<span class="order-dots">' + Art.em(card.emoji.repeat(card.count)) + '</span></div>').join('');
+    }
+    setHint('📶 从少到多，把 3 张卡片拖进格子');
+    AudioFX.speak('按数量从少到多，把卡片排进格子', 'zh-CN');
+    if (run.round === 0) coachFirstRound();
+  }
+
+  function orderDrop(chip, zone) {
+    if (!run || run.done || run.locked) return;
+    const slot = Number(zone.dataset.slot);
+    const count = Number(chip.dataset.count);
+    const want = run.orderCards.map(c => c.count).indexOf(count);
+    if (slot !== want) {
+      run.orderWrong = (run.orderWrong || 0) + 1;
+      wrongTap(chip);
+      shake(0.9);
+      zone.classList.add('miss');
+      later(() => zone.classList.remove('miss'), 420);
+      if (run.orderWrong >= 6) { orderReveal(); return; }
+      setHint('📶 这一格要放' + (slot === 0 ? '最少的' : slot === 2 ? '最多的' : '中间的') + '，再试一次～');
+      return;
+    }
+    if (zone.querySelector('.drag-chip')) return;
+    chip.classList.add('placed');
+    chip.style.transform = '';
+    zone.appendChild(chip);
+    zone.classList.add('filled');
+    run.orderPlaced = (run.orderPlaced || 0) + 1;
+    AudioFX.click();
+    floatFx(zone, '✓', '');
+    if (run.orderPlaced >= 3) {
+      run.locked = true;
+      later(() => roundDone(run.orderWrong === 0), 260);
+    }
+  }
+
+  /* 连续放错太多次：把正确顺序摆出来，讲清楚再进入下一组 */
+  function orderReveal() {
+    if (!run || run.done) return;
+    run.locked = true;
+    const board = $('#mini-board');
+    const slots = [...board.querySelectorAll('.order-slot')];
+    const chips = [...board.querySelectorAll('.order-chip')];
+    const sorted = run.orderCards.slice().sort((x, y) => x.count - y.count);
+    let si = 0;
+    sorted.forEach(card => {
+      const chip = chips.find(c => Number(c.dataset.count) === card.count && !c.classList.contains('placed'));
+      if (!chip) return;
+      while (si < slots.length && slots[si].querySelector('.drag-chip')) si++;
+      if (si >= slots.length) return;
+      chip.classList.add('placed');
+      chip.style.transform = '';
+      slots[si].appendChild(chip);
+      slots[si].classList.add('filled');
+      si++;
+    });
+    setHint('📶 看，从少到多是这样排的～');
+    later(() => roundDone(false), 1000);
+  }
+
   /* ---------- 启动与结算 ---------- */
 
   function start(type, opts = {}) {
@@ -1998,7 +2244,9 @@ const MiniGame = (() => {
         rocket: startRocket,
         match: startMatch,
         catch: startCatch,
-        odd: startOdd
+        odd: startOdd,
+        sort: startSort,
+        order: startOrder
       })[type]();
     };
     run.begin = begin;
@@ -2062,7 +2310,9 @@ const MiniGame = (() => {
       bubble: '戳破 ' + correct + '/' + run.total + ' 个泡泡，失误 ' + run.wrong + ' 次',
       rocket: '火箭冲了 ' + correct + '/' + run.total + ' 格，失误 ' + run.wrong + ' 次',
       catch: '接住 ' + correct + '/' + run.total + ' 个果子，失误 ' + run.wrong + ' 次',
-      odd: '找出 ' + correct + '/' + run.total + ' 个不同，失误 ' + run.wrong + ' 次'
+      odd: '找出 ' + correct + '/' + run.total + ' 个不同，失误 ' + run.wrong + ' 次',
+      sort: '分对 ' + correct + '/' + run.total + ' 只动物，失误 ' + run.wrong + ' 次',
+      order: '排对 ' + correct + '/' + run.total + ' 组数量，失误 ' + run.wrong + ' 次'
     }[run.type] || ('敲对 ' + correct + '/' + run.total + ' 只地鼠');
     const mixed = run.subject === 'mix';
     const done = mixed

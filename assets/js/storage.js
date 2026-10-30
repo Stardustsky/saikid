@@ -7,7 +7,7 @@ const SaveStore = (() => {
   const SLOT_LIST = 'xiaolongmao_profiles';  // 档案列表 [{ id, name, at }]
   const DEFAULT_SLOT = 'p1';
   const APP_ID = 'xiaolongmao';
-  const VERSION = 4;
+  const VERSION = 5;
   const WRITE_DELAY = 320;
 
   let timer = null;

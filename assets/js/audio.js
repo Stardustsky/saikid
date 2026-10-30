@@ -239,6 +239,13 @@ const AudioFX = (() => {
     return String(text).replace(/["“”]/g, '').trim();
   }
 
+  // 离线童声包：题目、提示、口令都用同一套音色，避免和在线成人女声混在一起
+  function packFile(text, lang) {
+    if (langKey(lang) !== 'zh') return '';
+    if (typeof CAT_VOICE === 'undefined') return '';
+    return CAT_VOICE[cleanText(text)] || '';
+  }
+
   // 单个字母按「字母名」朗读：
   // 直接送 "A" 给部分语音会被当成冠词 a 读成 /ə/，这就是 A 不读 /eɪ/ 的原因
   const LETTER_NAMES = {
@@ -289,7 +296,9 @@ const AudioFX = (() => {
       if (!seg) return;
       const urls = [];
       if (seg.audio) urls.push(...(Array.isArray(seg.audio) ? seg.audio : [seg.audio]));
-      if (seg.text && canOnline(seg.lang)) urls.push(onlineUrl(seg.text, seg.lang));
+      const pack = packFile(seg.text, seg.lang);
+      if (pack) urls.push(pack);
+      if (seg.text && !urls.length && canOnline(seg.lang)) urls.push(onlineUrl(seg.text, seg.lang));
       urls.forEach(url => {
         if (!url || preloads.has(url) || failedUrls.has(url)) return;
         const a = new Audio();
@@ -307,13 +316,18 @@ const AudioFX = (() => {
     });
   }
 
-  // 逐段朗读：本地真人素材 → 在线语音 → 系统语音，某一段失败只影响这一段
+  // 逐段朗读：本地童声包 / 真人素材 → 系统语音；中文不再走在线成人女声，英文仍保留在线标准发音
   function speakQueue(list, myGen) {
     if (myGen !== gen || !list.length) return;
     const seg = list[0];
     const urls = [];
     if (seg.audio) urls.push(...(Array.isArray(seg.audio) ? seg.audio : [seg.audio]));
-    if (canOnline(seg.lang)) {
+    else {
+      const pack = packFile(seg.text, seg.lang);
+      if (pack) urls.push(pack);
+    }
+    const localAudio = urls.length > 0;
+    if (!localAudio && canOnline(seg.lang)) {
       urls.push(onlineUrl(seg.text, seg.lang), backupUrl(seg.text, seg.lang));
     }
     const uniq = urls.filter((u, i, arr) => u && arr.indexOf(u) === i && !failedUrls.has(u));
@@ -528,6 +542,7 @@ const AudioFX = (() => {
       text: t,
       lang: lang,
       audio: i === 0 ? audio : '',
+      pack: packFile(t, lang),
       gap: i === parts.length - 1 ? 90 : 210
     })));
   }
@@ -591,7 +606,7 @@ const AudioFX = (() => {
     const parts = local ? [say] : (t.length >= 18 ? splitSentences(t) : [t]);
     const seed = tuneSeed(t);
     const rate = 0.86 + (seed % 4) * 0.02;      // 0.86 ~ 0.92，像小朋友慢慢说话
-    const pitch = 1.06 + (seed % 5) * 0.02;     // 1.06 ~ 1.14，略高一点又不至于失真
+    const pitch = 1.14 + (seed % 5) * 0.02;     // 1.14 ~ 1.22，贴近离线男童音色
     const segs = parts.map((p, i) => ({
       text: p,
       lang: 'zh-CN',

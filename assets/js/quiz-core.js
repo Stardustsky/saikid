@@ -656,7 +656,8 @@ const Quiz = (() => {
   function qPyChar(st) {
     const pool = poolHanzi(st);
     const item = pick(pool);
-    const wrong = shuffle(pool.filter(x => x.p !== item.p)).slice(0, 3).map(x => x.p);
+    // 不同汉字的拼音可能相同，先按拼音去重，避免选项里出现两个 shí
+    const wrong = uniqueLabels(shuffle(pool.filter(x => x.p !== item.p)), 'p').slice(0, 3).map(x => x.p);
     return {
       key: 'py-char-' + item.c,
       title: '这个字的拼音是哪个？',
@@ -1644,7 +1645,27 @@ const Quiz = (() => {
     if (!b) return null;
     const q = b(st);
     if (q) q.type = t;
+    // easy 变体：只留一个干扰项，变成二选一（非数值学科也能用同一套自适应）
+    if (q && st && st.easy && Array.isArray(q.options) && q.options.length > 2) {
+      const ci = q.options.findIndex(o => o.correct);
+      const wrongs = q.options.filter((o, i) => i !== ci && !o.correct);
+      if (ci > -1 && wrongs.length) {
+        const keep = wrongs[Math.floor(Math.random() * wrongs.length)];
+        q.options = q.options.filter((o, i) => i === ci || o === keep);
+        q.easy = true;
+      }
+    }
     return q;
+  }
+
+  /* 知识点标识：把题干 key 去掉图案与随机痕迹，保留到「具体是哪个数字/字母/汉字」这一级 */
+  function skillOf(key, type) {
+    const raw = String(key || '')
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '')
+      .replace(/\s+/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    return raw || String(type || 'choice');
   }
 
   /* 生成一整局：先去重，题池不够时补重复题，保证题量不会静默变少 */
@@ -1791,20 +1812,22 @@ const Quiz = (() => {
       const label = o => (typeof o === 'string' ? o : o.zh);
       const answer = label(fact.a);
       // 干扰项用这道题自带的 w：别的题的答案可能是一整句话，混进来就不像选项了
-      const wrongs = shuffle((fact.w || []).map(label)).filter(x => x !== answer).slice(0, need);
-      // 答案/干扰项里带图的（太阳、月亮、地球等）顺手给上图案
+      const wrongItems = shuffle(fact.w || []).filter(o => label(o) !== answer).slice(0, need);
+      const wrongs = wrongItems.map(label);
+      // 只给真正出现在选项里的图案做映射，避免多余的 art 键
       const art = {};
-      [fact.a].concat(fact.w || []).forEach(o => {
+      [fact.a].concat(wrongItems).forEach(o => {
         if (o && typeof o === 'object' && o.emoji) art[o.zh] = o.emoji;
       });
-      return {
+      const q = {
         prompt: fact.q,
         speak: { text: fact.q, lang: 'zh-CN' },
         answerSay: { text: answer, lang: 'zh-CN' },
         target: answer,
-        options: shuffle([answer, ...wrongs]),
-        art: art
+        options: shuffle([answer, ...wrongs])
       };
+      if (Object.keys(art).length) q.art = art;
+      return q;
     }
 
     if (subject === 'math') {
@@ -1880,6 +1903,7 @@ const Quiz = (() => {
     BUILDERS,
     build,
     buildSession,
+    skillOf,
     adapt,
     miniQuestion,
     pySound,

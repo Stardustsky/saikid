@@ -1572,6 +1572,8 @@ b, i { font-style: normal; }
   gap: 12px;
   margin-top: 24px;
 }
+/* .btn 自带 display:inline-flex，会盖掉 hidden 的默认样式，这里显式让 hidden 生效 */
+.result-actions .btn[hidden] { display: none; }
 
 /* ---------------- 我的小屋 ---------------- */
 

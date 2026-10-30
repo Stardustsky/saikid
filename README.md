@@ -45,7 +45,7 @@ node tools/audit.js
 node tools/build_cat_voice.js
 ```
 
-该脚本会抓取 `pet.js` / `games.js` / `minigames.js` 中的中文台词，调用百度翻译 TTS 下载 mp3 到 `assets/audio/cat/`，并重写 [cat-voice.js](assets/js/cat-voice.js) 清单。需要联网。
+该脚本会抓取 `pet.js` / `games.js` / `minigames.js` / `app.js` 中的中文台词，用微软 Edge 在线朗读的儿童音色（`zh-CN-XiaoyiNeural`，略抬高音调）逐句合成 mp3 到 `assets/audio/cat/`，并重写 [cat-voice.js](assets/js/cat-voice.js) 清单。需要联网和 `pip install edge-tts`；改音色只改脚本顶部的 `VOICE` / `PITCH` / `RATE`，再运行 `node tools/build_cat_voice.js --force` 全部重录。
 
 ## 玩什么
 
@@ -193,7 +193,7 @@ base → screens → features → theme → minigames
 
 ### 离线与版本
 
-`sw.js` 顶部的 `VERSION` 决定缓存版本，当前为 `xiaolongmao-v36`。它会 `importScripts()` 读取题库、emoji 清单和语音清单，自动生成预缓存列表。
+`sw.js` 顶部的 `VERSION` 决定缓存版本，当前为 `xiaolongmao-v41`。它会 `importScripts()` 读取题库、emoji 清单和语音清单，自动生成预缓存列表。
 
 缓存策略：页面导航网络优先、断网回退首页；静态资源 stale-while-revalidate（先读缓存、后台更新）。
 
@@ -201,7 +201,7 @@ base → screens → features → theme → minigames
 
 ### 语音链路
 
-1. **小龙猫台词**：优先播放 `assets/audio/cat/` 中的本地 mp3，时间轴与文字同步。
+1. **小龙猫台词**：优先播放 `assets/audio/cat/` 中的本地 mp3（儿童音色），时间轴与文字同步。
 2. **普通朗读**：默认请求在线中文 TTS（自然音色），可被家长关闭。
 3. **兜底**：在线语音失败或关闭时，回退到浏览器 `speechSynthesis`。
 4. **音效**：优先播放 `assets/audio/sfx/` 的 wav，缺失时用 WebAudio 合成。

@@ -1355,6 +1355,174 @@
 }
 
 /* ============================================================
+   9. 分类小能手 / 排排队 · 拖拽玩法
+   ============================================================ */
+
+.sort-board, .order-board {
+  max-width: 640px;
+  touch-action: none;
+}
+
+.sort-wrap, .order-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px;
+  border-radius: 26px;
+  background: linear-gradient(170deg, #ffffff, #f1fbf0);
+  box-shadow: inset 0 0 0 3px rgba(123, 191, 102, .16), var(--shadow-sm);
+}
+.order-wrap { background: linear-gradient(170deg, #ffffff, #fff3ec); }
+
+.sort-title, .order-title {
+  margin: 0;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 900;
+  color: #3f5b2f;
+}
+.order-title { color: #8a4a28; }
+
+.sort-tray, .order-tray {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 112px;
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .72);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .05);
+}
+
+.drag-chip {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: #fff;
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 6px 16px rgba(60, 80, 50, .16), inset 0 0 0 2px rgba(123, 191, 102, .25);
+  transition: box-shadow .18s ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+.drag-chip.dragging {
+  cursor: grabbing;
+  z-index: 12;
+  box-shadow: 0 14px 26px rgba(40, 60, 40, .28), inset 0 0 0 2px rgba(123, 191, 102, .5);
+}
+.drag-chip.placed { cursor: default; box-shadow: none; }
+
+.sort-chip .em { width: 44px; height: 44px; }
+.sort-name { font-size: 13px; font-weight: 900; color: #4d6b3f; }
+
+.sort-bins {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.sort-bin {
+  position: relative;
+  min-height: 108px;
+  padding: 10px 8px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: inset 0 0 0 2px rgba(123, 191, 102, .22);
+  transition: box-shadow .18s ease, transform .18s ease, background .18s ease;
+}
+.sort-bin-ic .em { width: 34px; height: 34px; }
+.sort-bin-name { font-size: 12px; font-weight: 900; color: #4d6b3f; }
+.sort-bin.hot {
+  background: #f2ffe9;
+  box-shadow: inset 0 0 0 3px #7bbf66, 0 8px 18px rgba(90, 150, 70, .22);
+  transform: translateY(-3px);
+}
+.sort-bin.right-zone {
+  box-shadow: inset 0 0 0 3px #7bbf66, 0 0 18px rgba(123, 191, 102, .5);
+  animation: cellPop .5s ease;
+}
+
+.order-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.order-slot {
+  min-height: 104px;
+  padding: 8px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: inset 0 0 0 2px rgba(239, 125, 77, .22);
+  transition: box-shadow .18s ease, background .18s ease;
+}
+.order-slot-ic { font-size: 20px; line-height: 1; }
+.order-slot-tip { font-size: 11px; font-weight: 900; color: #a5623c; }
+.order-slot.hot {
+  background: #fff4ec;
+  box-shadow: inset 0 0 0 3px #ef7d4d, 0 8px 18px rgba(210, 110, 70, .22);
+}
+.order-slot.filled { background: #f2ffe9; box-shadow: inset 0 0 0 2px rgba(123, 191, 102, .35); }
+.order-slot.miss { animation: sortMiss .4s ease; }
+
+.order-chip {
+  box-shadow: 0 6px 16px rgba(90, 60, 40, .16), inset 0 0 0 2px rgba(239, 125, 77, .25);
+}
+.order-chip .em { width: 22px; height: 22px; }
+.order-dots {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 120px;
+  gap: 2px;
+}
+
+@keyframes sortMiss {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@media (max-width: 640px) {
+  .sort-wrap, .order-wrap { padding: 12px; gap: 10px; border-radius: 22px; }
+  .sort-tray, .order-tray { min-height: 96px; padding: 9px; }
+  .sort-bin { min-height: 92px; }
+  .order-slot { min-height: 92px; }
+  .sort-bin-name, .sort-name { font-size: 11px; }
+}
+
+/* 深色主题下的拖拽棋盘 */
+:root[data-theme="dark"] .sort-wrap { background: linear-gradient(170deg, #26302a, #222c33); }
+:root[data-theme="dark"] .order-wrap { background: linear-gradient(170deg, #332a25, #2b2523); }
+:root[data-theme="dark"] .sort-tray,
+:root[data-theme="dark"] .order-tray { background: rgba(255, 255, 255, .06); }
+:root[data-theme="dark"] .drag-chip,
+:root[data-theme="dark"] .sort-bin,
+:root[data-theme="dark"] .order-slot { background: rgba(255, 255, 255, .1); }
+:root[data-theme="dark"] .sort-title { color: #cfe8bd; }
+:root[data-theme="dark"] .order-title { color: #ffd2b8; }
+:root[data-theme="dark"] .sort-name,
+:root[data-theme="dark"] .sort-bin-name { color: #cfe8bd; }
+:root[data-theme="dark"] .order-slot-tip { color: #ffd2b8; }
+
+/* ============================================================
    首回合教学：小龙猫先指一次「点哪里」
    ============================================================ */
 

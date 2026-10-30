@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#bfe6c9">
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="小龙猫乐园：给 3-6 岁孩子的数字、算术、字母、单词、拼音、汉字、图形、表达和自然探索启蒙游戏。">
@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="assets/css/features.css">
 <link rel="stylesheet" href="assets/css/theme.css">
 <link rel="stylesheet" href="assets/css/minigames.css">
+<link rel="stylesheet" href="assets/css/mobile.css">
 </head>
 <body>
 
@@ -237,6 +238,7 @@
         <div class="result-rewards" id="result-rewards"></div>
         <div class="result-actions">
           <button class="btn btn-green" id="btn-again">再玩一次</button>
+          <button class="btn btn-blue" id="btn-train" hidden>去练这一阶段</button>
           <button class="btn btn-yellow" id="btn-back-map">回到地图</button>
           <button class="btn btn-blue" id="btn-back-home">回到乐园</button>
         </div>
@@ -505,6 +507,25 @@
     </section>
 
   </main>
+
+  <!-- 底部主导航（手机端显示，桌面隐藏） -->
+  <nav class="tabbar" aria-label="主导航">
+    <button class="tabbar-item" data-nav="home" type="button" aria-label="回到乐园">
+      <span class="tab-icon" aria-hidden="true">🏠</span>乐园
+    </button>
+    <button class="tabbar-item" data-nav="map" type="button" aria-label="闯关大冒险">
+      <span class="tab-icon" aria-hidden="true">🗺️</span>闯关
+    </button>
+    <button class="tabbar-item" data-nav="arcade" type="button" aria-label="小游戏乐园">
+      <span class="tab-icon" aria-hidden="true">🎮</span>小游戏
+    </button>
+    <button class="tabbar-item" data-nav="room" type="button" aria-label="我的小屋">
+      <span class="tab-icon" aria-hidden="true">🏡</span>小屋
+    </button>
+    <button class="tabbar-item" data-nav="badges" type="button" aria-label="成长勋章">
+      <span class="tab-icon" aria-hidden="true">🏅</span>勋章
+    </button>
+  </nav>
 </div>
 
 <!-- 商店 -->

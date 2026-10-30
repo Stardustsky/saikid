@@ -1,5 +1,5 @@
 /* 小龙猫乐园 Service Worker：离线可用 + 静态资源缓存 */
-const VERSION = 'xiaolongmao-v36';
+const VERSION = 'xiaolongmao-v43';
 
 /* 读取题库、本地插画清单与小龙猫语音清单，用它们生成离线预缓存列表（都只导出常量，不访问 DOM） */
 importScripts('./assets/js/data.js', './assets/js/emoji-map.js', './assets/js/cat-voice.js');
@@ -13,6 +13,7 @@ const CORE = [
   './assets/css/features.css',
   './assets/css/theme.css',
   './assets/css/minigames.css',
+  './assets/css/mobile.css',
   './assets/js/data.js',
   './assets/js/emoji-map.js',
   './assets/js/art.js',
@@ -54,35 +55,46 @@ function syllableKey(p) {
   return base + (tone || 5);
 }
 
-/* 本地真人拼音录音 + 本地 Twemoji 插画：首次安装就一起缓存，断网也能发音、也有图 */
-const MEDIA = [];
-(function collectMedia() {
+/* 首次安装只缓存「打开就要用」的东西：拼音真人录音随点随听。
+   童声台词包和几千张插画体积太大，改为用到时缓存，安装从 8MB+ 降到 1MB 左右 */
+const PINYIN = [];
+(function collectPinyin() {
   const py = (typeof DATA !== 'undefined' && DATA.pinyin) || null;
-  if (py) {
-    (py.initials || []).forEach((i) => MEDIA.push('./assets/audio/pinyin/sheng/' + i.p + '.mp3'));
-    (py.localFinals || (py.finals || []).map((f) => f.p)).forEach((f) => {
-      MEDIA.push('./assets/audio/pinyin/yun/' + String(f).replace(/ü/g, 'v') + '.mp3');
-    });
-    (py.syllables || []).forEach((s) => {
-      if (s.local === false) return;
-      MEDIA.push('./assets/audio/pinyin/yinjie/' + syllableKey(s.p) + '.mp3');
-    });
-    [1, 2, 3, 4].forEach((t) => MEDIA.push('./assets/audio/pinyin/yinjie/a' + t + '.mp3'));
+  if (!py) return;
+  (py.initials || []).forEach((i) => PINYIN.push('./assets/audio/pinyin/sheng/' + i.p + '.mp3'));
+  (py.localFinals || (py.finals || []).map((f) => f.p)).forEach((f) => {
+    PINYIN.push('./assets/audio/pinyin/yun/' + String(f).replace(/ü/g, 'v') + '.mp3');
+  });
+  (py.syllables || []).forEach((s) => {
+    if (s.local === false) return;
+    PINYIN.push('./assets/audio/pinyin/yinjie/' + syllableKey(s.p) + '.mp3');
+  });
+  [1, 2, 3, 4].forEach((t) => PINYIN.push('./assets/audio/pinyin/yinjie/a' + t + '.mp3'));
+})();
+
+/* 空闲预取：童声台词 + 插画在装好之后分批补齐，不参与首屏等待 */
+const WARM = [];
+(function collectWarm() {
+  if (typeof CAT_VOICE !== 'undefined') {
+    Object.keys(CAT_VOICE).forEach((k) => WARM.push('./' + CAT_VOICE[k]));
   }
   if (typeof EMOJI_SET !== 'undefined') {
-    EMOJI_SET.forEach((code) => MEDIA.push('./assets/img/emoji/' + code + '.svg'));
-  }
-  // 小龙猫台词真人录音（由 tools/build_cat_voice.js 生成），装了就能离线开口
-  if (typeof CAT_VOICE !== 'undefined') {
-    Object.keys(CAT_VOICE).forEach((k) => MEDIA.push('./' + CAT_VOICE[k]));
+    EMOJI_SET.forEach((code) => WARM.push('./assets/img/emoji/' + code + '.svg'));
   }
 })();
 
-/* 分批缓存：单个文件缺失不影响整体安装 */
+/* 分批缓存：单个文件缺失不影响整体安装；已经在缓存里的直接跳过，避免每次启动重复下载 */
 async function precache(cache, urls, size) {
   const step = size || 24;
   for (let i = 0; i < urls.length; i += step) {
-    await Promise.all(urls.slice(i, i + step).map((url) => cache.add(url).catch(() => null)));
+    await Promise.all(urls.slice(i, i + step).map(async (url) => {
+      try {
+        if (await cache.match(url)) return;
+        await cache.add(url);
+      } catch (err) {
+        /* 忽略单个资源失败，不影响其它资源 */
+      }
+    }));
   }
 }
 
@@ -90,7 +102,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(VERSION).then(async (cache) => {
       await precache(cache, CORE, 8);
-      await precache(cache, MEDIA);
+      await precache(cache, PINYIN);
     })
   );
 });
@@ -104,7 +116,16 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  const data = event.data || {};
+  if (data.type === 'SKIP_WAITING') self.skipWaiting();
+  // 页面空闲时补缓存童声台词与插画，装好后再慢慢补齐，不阻塞首屏
+  if (data.type === 'WARM_MEDIA') {
+    const offset = Math.max(0, Math.round(Number(data.offset) || 0));
+    const limit = Math.max(1, Math.round(Number(data.limit) || 60));
+    event.waitUntil(
+      caches.open(VERSION).then((cache) => precache(cache, WARM.slice(offset, offset + limit), 12))
+    );
+  }
 });
 
 self.addEventListener('fetch', (event) => {

@@ -1,0 +1,360 @@
+/* ============================================================
+   小龙猫乐园 · 幼儿益智游戏样式 4/4
+   跟读描红、确认框与三套主题（深色 / 大字号 / 降低动画）
+   ============================================================ */
+
+/* ============================================================
+   跟读 / 描红
+   ============================================================ */
+
+.practice-card { max-width: 520px; }
+.practice-pane {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 2px 2px;
+}
+.practice-pane.show { display: flex; }
+.practice-sub {
+  font-family: "ZCOOL KuaiLe", var(--font);
+  font-size: clamp(30px, 8vw, 46px);
+  line-height: 1.2;
+  letter-spacing: 1px;
+  text-align: center;
+  color: var(--ink);
+}
+.practice-listen {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #eef7ea;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--purple);
+}
+.follow-state {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--ink-soft);
+}
+.practice-main { width: 100%; max-width: 320px; }
+.follow-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.practice-audio {
+  width: 100%;
+  max-width: 340px;
+  height: 40px;
+}
+.practice-rate {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.practice-tip {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--ink-light);
+}
+.practice-ok { font-size: 15px; font-weight: 900; color: var(--purple); }
+.practice-stars { display: flex; justify-content: center; gap: 4px; }
+
+/* 描红底板始终浅色：笔迹固定 #3d5a4c，深色下也要能看清 */
+.trace-wrap {
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 1 / 1;
+  padding: 8px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: var(--shadow-sm), inset 0 0 0 2px var(--line);
+}
+#trace-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  touch-action: none;
+  cursor: crosshair;
+}
+.trace-bar { display: flex; gap: 10px; }
+
+/* ============================================================
+   确认框 / noscript
+   ============================================================ */
+
+.confirm-card {
+  max-width: 360px;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.confirm-title { font-size: 18px; font-weight: 900; color: var(--ink); }
+.confirm-text {
+  font-size: 13px;
+  line-height: 1.7;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.noscript {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 99;
+  padding: 18px 20px;
+  background: #fff3c4;
+  color: #7a5600;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* 键盘可见焦点（鼠标点击不出现描边） */
+:focus-visible {
+  outline: 3px solid rgba(95, 158, 110, .65);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+/* ============================================================
+   小游戏棋盘：5–6 个选项时的自适应
+   ============================================================ */
+
+.mini-board.bubble-board,
+.mini-board.fish-board {
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+}
+@media (max-width: 700px) {
+  .mini-board.bubble-board,
+  .mini-board.fish-board { grid-template-columns: repeat(2, 1fr); }
+  .fish-cell { height: 126px; }
+}
+
+/* ============================================================
+   主题一：深色模式（:root[data-theme="dark"]）
+   ============================================================ */
+
+:root[data-theme="dark"] {
+  --sky-1: #182420;
+  --sky-2: #1d2b26;
+  --sky-3: #22322c;
+  --ink: #e8f1e6;
+  --ink-soft: #b8c8b4;
+  --ink-light: #8fa28c;
+  --card: #24342e;
+  --purple: #7fbf90;
+  --purple-soft: #2c4034;
+  --line: #35473e;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, .35);
+  --shadow: 0 8px 20px rgba(0, 0, 0, .42);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+/* 背景装饰降亮度，避免夜景里出现刺眼的白云 */
+:root[data-theme="dark"] .sky { opacity: .42; }
+:root[data-theme="dark"] .cloud { background: rgba(255, 255, 255, .18); }
+
+/* 半透明悬浮件 */
+:root[data-theme="dark"] :is(.hud-btn, .pill, .hud-chip) {
+  background-color: rgba(36, 52, 46, .9);
+}
+:root[data-theme="dark"] .hud-chip:hover { background-color: rgba(56, 74, 66, .96); }
+:root[data-theme="dark"] .care-zone { background-color: rgba(36, 52, 46, .74); }
+
+/* 纯白表面统一转深 */
+:root[data-theme="dark"] :is(
+  .speech, .care-btn, .subject-card, .stage-hero-icon, .stage-card, .icon-btn,
+  .q-card, .option, .badge, .badge-count, .inv-item, .modal-card, .shop-emoji,
+  .banner-go, .daily-card, .task-ico, .map-hero-stars, .node-bubble,
+  .atlas-banner-icon, .atlas-tab, .atlas-body, .mini-hint, .mini-result-card,
+  .mem-back, .mini-replay, .pin-key, .wrong-pill, .trace-wrap,
+  .parent-card, #screen-parent .pin-gate
+) {
+  background-color: var(--card);
+  color: var(--ink);
+}
+:root[data-theme="dark"] .trace-wrap {
+  background-color: #f4f7f2;
+  box-shadow: var(--shadow-sm), inset 0 0 0 2px #d8e0d4;
+}
+
+/* 渐变表面改为深色渐变 */
+:root[data-theme="dark"] .hero {
+  background:
+    radial-gradient(circle at 12% 16%, rgba(127, 191, 144, .16), transparent 44%),
+    linear-gradient(150deg, #22322c 0%, #26372f 48%, #1f2f2a 100%);
+  border-color: #33463c;
+}
+:root[data-theme="dark"] .hero::before {
+  background: radial-gradient(ellipse at 50% 0%, #2a3d33 0%, #24352d 56%, rgba(36, 53, 45, 0) 76%);
+}
+:root[data-theme="dark"] .stage-hero,
+:root[data-theme="dark"] .atlas-banner {
+  background: linear-gradient(135deg, #26372f 0%, #22322c 58%, #1e2e2a 100%);
+}
+:root[data-theme="dark"] .badge.got {
+  background: linear-gradient(165deg, #3a3524, #332f1e);
+  box-shadow: 0 0 0 2px #6b5c2a inset, var(--shadow-sm);
+}
+:root[data-theme="dark"] .sum-item {
+  background: linear-gradient(160deg, #2b3a33, #283a3a);
+}
+
+/* 彩色/强调色表面在深色下保留原有文字色 */
+:root[data-theme="dark"] .atlas-tab.active { color: #fff; }
+:root[data-theme="dark"] .option.correct { color: #1d9b6c; }
+:root[data-theme="dark"] .option.wrong { color: #e04257; }
+:root[data-theme="dark"] .mini-replay { color: #7fd0ff; }
+
+/* 浅色块 / 浅色底 */
+:root[data-theme="dark"] :is(
+  .subject-icon, .stage-emoji, .stage-index, .atlas-cell, .math-cell,
+  .storage-tip, .pin-input, .pin-key.pin-fn, .badge-bar, .trend, .goal-row,
+  .parent-advice, .practice-listen, .mini-result-rewards span
+) {
+  background-color: #2a3a33;
+}
+:root[data-theme="dark"] .stage-card.locked { background-color: #22302a; }
+:root[data-theme="dark"] .stage-index { color: var(--ink-soft); }
+:root[data-theme="dark"] :is(.stage-hero-bar, .progress) { background-color: rgba(255, 255, 255, .12); }
+:root[data-theme="dark"] .report-bar { background-color: #1f2c27; }
+:root[data-theme="dark"] :is(.tab, .task, .shop-item, .rstat, .modal-close) { background-color: #26352f; }
+:root[data-theme="dark"] .task.ready { background-color: #2a3f36; border-color: #3d6b52; }
+:root[data-theme="dark"] :is(.seq .seq-q, .eq-q, .reward) { background-color: #3a3320; }
+:root[data-theme="dark"] .pin-dots i { background-color: #2f3f38; box-shadow: inset 0 0 0 2px #3d5148; }
+:root[data-theme="dark"] .pin-input { box-shadow: inset 0 0 0 2px #3d5148; }
+:root[data-theme="dark"] .switch { background-color: #3a4a42; }
+:root[data-theme="dark"] .switch-row { border-bottom-color: #32433a; }
+:root[data-theme="dark"] .danger-row { border-bottom-color: #4a3138; }
+:root[data-theme="dark"] .node-bubble { border-color: #3a4d43; }
+:root[data-theme="dark"] .map-node.locked .node-bubble { background-color: #2a3831; }
+:root[data-theme="dark"] :is(.node-info b, .node-info small) { background-color: rgba(36, 52, 46, .9); }
+
+/* 小屋心愿 / 舒适度 / 心愿面板 */
+:root[data-theme="dark"] :is(.room-wish, .room-comfort) { background-color: var(--card); color: var(--ink); }
+:root[data-theme="dark"] .room-care { background-color: var(--card); }
+:root[data-theme="dark"] .rcare-face { background: linear-gradient(150deg, #3a3524, #33301e); }
+:root[data-theme="dark"] .rcare-act { background-color: #26352f; }
+:root[data-theme="dark"] .rcare-act:hover { background-color: #2e4038; }
+:root[data-theme="dark"] .rcare-track { background-color: #2a3a33; }
+:root[data-theme="dark"] .room-speech { background-color: var(--card); color: var(--ink); }
+:root[data-theme="dark"] .room-speech::after { background-color: var(--card); }
+:root[data-theme="dark"] .room-wish.done { background: linear-gradient(150deg, #22362a, #1f3026); }
+:root[data-theme="dark"] .rw-ico { background: linear-gradient(150deg, #3a3524, #33301e); }
+:root[data-theme="dark"] .room-wish.done .rw-ico { background: linear-gradient(150deg, #26382c, #223528); }
+:root[data-theme="dark"] .rw-go { background-color: #2a3a33; color: #8ede9a; }
+:root[data-theme="dark"] :is(.rw-pips i, .rm-pips i) { background-color: #3a4a42; }
+:root[data-theme="dark"] :is(.rw-pips i.on, .rm-pips i.on) { background: linear-gradient(140deg, #ffd76a, #ffab2e); }
+:root[data-theme="dark"] :is(.rc-stars i, .rm-stars i) { color: #3a4a42; }
+:root[data-theme="dark"] :is(.rc-stars i.on, .rm-stars i.on) { color: #ffb03a; }
+:root[data-theme="dark"] :is(.rc-bar, .rm-bar) { background-color: #2a3a33; }
+:root[data-theme="dark"] .room-wish-pop { background-color: rgba(36, 52, 46, .96); }
+:root[data-theme="dark"] .rwp-txt { color: var(--ink); }
+:root[data-theme="dark"] .rwp-coin { color: #ffcf70; }
+:root[data-theme="dark"] .rm-wish { background: linear-gradient(150deg, #3a3320, #332d1c); }
+:root[data-theme="dark"] .rm-wish.done { background: linear-gradient(150deg, #26382c, #223022); }
+:root[data-theme="dark"] .rm-streak { color: #d3a862; }
+:root[data-theme="dark"] .rm-item { background-color: #26352f; }
+:root[data-theme="dark"] .rm-item.on {
+  background: linear-gradient(160deg, #26382c, #223528);
+  box-shadow: inset 0 0 0 2px #3d6b52;
+}
+:root[data-theme="dark"] .rm-item.on small { color: #7fd9a0; }
+:root[data-theme="dark"] .rm-comfort { background-color: #26352f; }
+:root[data-theme="dark"] .rm-perks li { background-color: #2a3a33; }
+:root[data-theme="dark"] .rm-perks li.on { background: linear-gradient(120deg, #3a3524, #332f1e); }
+:root[data-theme="dark"] .rm-perks li small { color: #e0b25a; }
+
+/* 选项按下时的立体阴影要换成深色 */
+:root[data-theme="dark"] .option { box-shadow: 0 5px 0 #1b2621; }
+:root[data-theme="dark"] .option:hover { box-shadow: 0 7px 0 #1b2621, var(--shadow); }
+:root[data-theme="dark"] .option:active { box-shadow: 0 2px 0 #1b2621; }
+:root[data-theme="dark"] .btn-ghost { background-color: var(--card); box-shadow: 0 0 0 2px #3c5145 inset; }
+:root[data-theme="dark"] .btn-ghost:hover { box-shadow: 0 0 0 2px #ffc9d1 inset; }
+
+/* 小游戏彩色棋盘保持原色，只压一下亮块的刺眼感 */
+:root[data-theme="dark"] :is(.bubble, .fish-cell, .mole-hole) { filter: brightness(.92); }
+:root[data-theme="dark"] .bubble span { color: #145b85; }
+
+/* 大模块子模块标签 */
+:root[data-theme="dark"] .subject-tabs { background-color: #22302a; box-shadow: 0 3px 12px rgba(0, 0, 0, .3), inset 0 0 0 1.5px #35493d; }
+:root[data-theme="dark"] .subject-tab { background-color: #2a3a33; color: var(--ink-soft); box-shadow: inset 0 0 0 1.5px #35493d; }
+:root[data-theme="dark"] .subject-tab:hover { background-color: #33473c; color: var(--ink); }
+:root[data-theme="dark"] .subject-tab.active { background-color: var(--c, var(--green)); color: #fff; box-shadow: 0 7px 16px rgba(0, 0, 0, .42), inset 0 0 0 1.5px rgba(255, 255, 255, .32); }
+
+/* ============================================================
+   主题二：大字号（:root[data-font="large"]）
+   只放大关键信息，不使用 zoom，避免 fixed 弹窗越界
+   ============================================================ */
+
+:root[data-font="large"] .hud-btn { width: 52px; height: 52px; }
+:root[data-font="large"] .pill { height: 44px; font-size: 17px; }
+:root[data-font="large"] .hud-chip { width: 46px; height: 46px; font-size: 22px; }
+:root[data-font="large"] .subject-name { font-size: 19px; }
+:root[data-font="large"] .subject-meta { font-size: 12.5px; }
+:root[data-font="large"] .subject-tab { font-size: 15.5px; padding: 10px 17px 10px 13px; }
+:root[data-font="large"] .stage-main b { font-size: 18px; }
+:root[data-font="large"] .stage-main small { font-size: 13px; }
+:root[data-font="large"] .q-title { font-size: 22px; }
+:root[data-font="large"] .option { min-height: 86px; font-size: 30px; }
+:root[data-font="large"] .opt-sub { font-size: 13px; }
+:root[data-font="large"] .letter-hint { font-size: 18px; }
+:root[data-font="large"] .visual-note { font-size: 17px; }
+:root[data-font="large"] .mini-prompt { font-size: 16px; }
+:root[data-font="large"] .mini-hint { font-size: 13.5px; }
+:root[data-font="large"] .task-head b { font-size: 14px; }
+:root[data-font="large"] .badge span { font-size: 12.5px; }
+:root[data-font="large"] .badge b { font-size: 15px; }
+:root[data-font="large"] .badge-prog { font-size: 12px; }
+:root[data-font="large"] .parent-body,
+:root[data-font="large"] .parent-body h4 { font-size: 14px; }
+:root[data-font="large"] .parent-advice,
+:root[data-font="large"] .storage-tip,
+:root[data-font="large"] .wrong-tip { font-size: 13px; }
+:root[data-font="large"] .trend-num,
+:root[data-font="large"] .trend-day { font-size: 12px; }
+:root[data-font="large"] .goal-num { font-size: 15px; }
+:root[data-font="large"] .practice-tip,
+:root[data-font="large"] .follow-state { font-size: 14px; }
+
+/* ============================================================
+   主题三：降低动画（:root[data-motion="reduce"]）
+   ============================================================ */
+
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="auto"]) *,
+  :root:not([data-motion="auto"]) *::before,
+  :root:not([data-motion="auto"]) *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+

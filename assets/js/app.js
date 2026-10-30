@@ -296,6 +296,7 @@ const App = (() => {
       },
       history: {},
       wrongBook: [],
+      reviewBook: [],
       answers: [],
       map: { unlocked: 1, clears: 0, stars: {}, branchDone: {} },
       stages: {},
@@ -470,6 +471,33 @@ const App = (() => {
           options,
           chosen: String(w.chosen == null ? '' : w.chosen),
           times: Math.round(num(w.times, 1, 1, 999)),
+          right: Math.round(num(w.right, 0, 0, 999)),
+          dueAt: num(w.dueAt, Date.now(), 0, Date.now() + 365 * 86400000),
+          at: num(w.at, Date.now(), 0, Date.now() + 86400000)
+        };
+      });
+    }
+
+    // 复习本：答对过的题，7 天后回来看一眼；结构比错题本轻
+    if (Array.isArray(src.reviewBook)) {
+      s.reviewBook = src.reviewBook.filter(isObj).slice(-60).map(w => {
+        const subject = DATA.curriculum[w.subject] ? w.subject : 'numbers';
+        const options = Array.isArray(w.options) ? w.options.filter(isObj).slice(0, 6).map(o => ({
+          label: String(o.label == null ? '' : o.label),
+          html: String(o.html == null ? '' : o.html)
+        })) : [];
+        return {
+          id: String(w.id || ('r' + Math.random().toString(36).slice(2, 10))),
+          key: String(w.key || ''),
+          skill: String(w.skill || ''),
+          subject,
+          type: String(w.type || 'choice'),
+          title: String(w.title == null ? '' : w.title),
+          visual: String(w.visual == null ? '' : w.visual),
+          answer: String(w.answer == null ? '' : w.answer),
+          speak: isObj(w.speak) ? { text: String(w.speak.text || ''), lang: String(w.speak.lang || 'zh-CN'), audio: String(w.speak.audio || '') } : null,
+          hint: String(w.hint == null ? '' : w.hint),
+          options,
           right: Math.round(num(w.right, 0, 0, 999)),
           dueAt: num(w.dueAt, Date.now(), 0, Date.now() + 365 * 86400000),
           at: num(w.at, Date.now(), 0, Date.now() + 86400000)
@@ -653,6 +681,10 @@ const App = (() => {
       pinBuffer = '';
     }
     activeScreen = name;
+    document.body.dataset.screen = name;
+    $$('.tabbar-item').forEach(b => {
+      b.setAttribute('aria-current', b.dataset.nav === name ? 'page' : 'false');
+    });
     $$('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
     if (name !== 'game') AudioFX.stopSpeak();
     if (name === 'home') {
@@ -675,6 +707,24 @@ const App = (() => {
       try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); }
     }
   }
+
+  // 安卓壳的物理返回键：先关弹窗，再从二级页回首页，最后才退出 App
+  window.__shellBack = function () {
+    const opened = $$('.modal').filter(m => m.classList.contains('open'));
+    if (opened.length) {
+      const top = opened[opened.length - 1];
+      if (top.id === 'confirm-modal') { closeConfirm(false); return true; }
+      if (top.id === 'guide-modal') return true;
+      top.classList.remove('open');
+      return true;
+    }
+    if (activeScreen === 'game') { Game.quit(); return true; }
+    if (activeScreen !== 'home') { show('home'); return true; }
+    return false;
+  };
+
+  document.body.dataset.screen = activeScreen;
+  $$('.tabbar-item[data-nav="home"]').forEach(b => b.setAttribute('aria-current', 'page'));
 
   function refreshHud() {
     $('#hud-coins').textContent = state.coins;
@@ -1071,13 +1121,14 @@ const App = (() => {
     return list.filter(a => a.ok).length / list.length;
   }
 
-  function masteryKey(subject, type) {
-    return subject + '|' + type;
+  function masteryKey(subject, type, skill) {
+    return subject + '|' + type + (skill ? '|' + skill : '');
   }
 
-  function noteMastery(subject, type, ok) {
+  // 掌握度记录到「具体知识点」（如 汉字 山 / 声母 b），而不是整个题型
+  function noteMastery(subject, type, ok, skill) {
     if (!state || !subject || !type || subject === 'placement') return;
-    const key = masteryKey(subject, type);
+    const key = masteryKey(subject, type, skill);
     const m = state.mastery[key] || { level: 0, right: 0, wrong: 0, at: 0 };
     if (ok) {
       m.right++;
@@ -1088,11 +1139,22 @@ const App = (() => {
     }
     m.at = Date.now();
     state.mastery[key] = m;
+
+    // 知识点会越攒越多，超过 400 条时丢掉最久没碰过的，避免存档无限膨胀
+    const keys = Object.keys(state.mastery);
+    if (keys.length > 400) {
+      keys.sort((a, b) => (Number(state.mastery[a].at) || 0) - (Number(state.mastery[b].at) || 0));
+      keys.slice(0, keys.length - 400).forEach(k => { delete state.mastery[k]; });
+    }
   }
 
-  function masteryLevel(subject, type) {
-    const m = state && state.mastery[masteryKey(subject, type)];
-    return m ? m.level : 0;
+  function masteryLevel(subject, type, skill) {
+    if (!state) return 0;
+    const m = state.mastery[masteryKey(subject, type, skill)];
+    if (m) return m.level;
+    // 旧存档只有「科目|题型」，这里按题型兜底，升级后不会突然清零
+    const old = state.mastery[masteryKey(subject, type)];
+    return old ? old.level : 0;
   }
 
   /* 薄弱知识点：出过错、掌握等级低，并能找到对应已解锁阶段的，优先推荐 */
@@ -1103,7 +1165,7 @@ const App = (() => {
       const parts = k.split('|');
       const m = state.mastery[k] || {};
       return {
-        subject: parts[0], type: parts[1],
+        subject: parts[0], type: parts[1], skill: parts[2] || '',
         level: Number(m.level) || 0,
         wrong: Number(m.wrong) || 0,
         tries: (Number(m.right) || 0) + (Number(m.wrong) || 0)
@@ -1122,7 +1184,7 @@ const App = (() => {
       });
       if (!stage) return;
       if (out.some(o => o.stageId === stage.id)) return;
-      out.push({ subject: r.subject, type: r.type, stageId: stage.id, stageName: stage.name, level: r.level });
+      out.push({ subject: r.subject, type: r.type, skill: r.skill, stageId: stage.id, stageName: stage.name, level: r.level });
     });
     return out;
   }
@@ -1141,8 +1203,12 @@ const App = (() => {
   function knowledgeProgress(subjectKey) {
     const types = subjectTypes(subjectKey);
     const got = types.filter(t => {
-      const m = state.mastery[masteryKey(subjectKey, t)];
-      return m && (Number(m.right) || 0) + (Number(m.wrong) || 0) > 0;
+      const prefix = masteryKey(subjectKey, t);
+      return Object.keys(state.mastery).some(k => {
+        if (k !== prefix && k.indexOf(prefix + '|') !== 0) return false;
+        const m = state.mastery[k] || {};
+        return (Number(m.right) || 0) + (Number(m.wrong) || 0) > 0;
+      });
     }).length;
     return { got, total: types.length };
   }
@@ -1602,7 +1668,7 @@ const App = (() => {
     }
     closeModal('intro-modal');
     AudioFX.click();
-    AudioFX.speak('我们出发吧', 'zh-CN');
+    AudioFX.speakCat('我们出发吧', { force: true });
   }
 
   function maybeGuide(subjectKey, onStart) {
@@ -1668,7 +1734,7 @@ const App = (() => {
       newBadgeCheck();
       petReact('react-happy');
       AudioFX.petEat();
-      AudioFX.speak('好吃！谢谢你～', 'zh-CN');
+      AudioFX.speakCat('好吃！谢谢你～', { force: true });
       toast('小龙猫吃得很开心！（-5🌰）');
     } else if (action === 'bath') {
       if (p.clean >= 96) return toast('小龙猫已经很干净啦～');
@@ -1681,7 +1747,7 @@ const App = (() => {
       newBadgeCheck();
       petReact('react-happy');
       AudioFX.petBath();
-      AudioFX.speak('洗香香，好舒服～', 'zh-CN');
+      AudioFX.speakCat('洗香香，好舒服～', { force: true });
       toast('洗得干干净净！（-4🌰）');
     } else if (action === 'play') {
       if (p.mood >= 96) return toast('它玩得超开心，先休息一下吧～');
@@ -1695,7 +1761,7 @@ const App = (() => {
       newBadgeCheck();
       petReact('react-happy');
       AudioFX.petPlay();
-      AudioFX.speak('哈哈，再来一次！', 'zh-CN');
+      AudioFX.speakCat('哈哈，再来一次！', { force: true });
       toast('玩得真开心！（-3🌰）');
     }
 
@@ -1838,7 +1904,7 @@ const App = (() => {
       answers.slice(-80).forEach(a => {
         if (!isObj(a)) return;
         pushAnswer(subj, a.type, a.answer, a.chosen, a.ok);
-        noteMastery(subj, a.type, a.ok === true);
+        noteMastery(subj, a.type, a.ok === true, Quiz.skillOf(a.key, a.type));
       });
     }
 
@@ -2014,18 +2080,60 @@ const App = (() => {
     refreshReviewBadge();
   }
 
+  /* 答对的知识点：7 天后进复习；错题本已经管着的题不重复记录 */
+  function addReview(q) {
+    if (!isObj(q) || !Array.isArray(state.reviewBook)) return;
+    const key = wrongKey(q);
+    if (state.reviewBook.some(w => w.key === key)) return;
+    if (state.wrongBook.some(w => w.key === key)) return;
+    const skill = Quiz.skillOf ? Quiz.skillOf(q.key, q.type) : '';
+    // 已经掌握到 4 级的知识点不再占用复习时间
+    if (masteryLevel(q.subject, q.type, skill) >= 4) return;
+    state.reviewBook.push({
+      id: 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      key,
+      skill,
+      subject: DATA.curriculum[q.subject] ? q.subject : 'numbers',
+      type: String(q.type || 'choice'),
+      title: String(q.title == null ? '' : q.title),
+      visual: String(q.visual == null ? '' : q.visual),
+      answer: String(q.answer == null ? '' : q.answer),
+      speak: isObj(q.speak) ? {
+        text: String(q.speak.text || ''),
+        lang: String(q.speak.lang || 'zh-CN'),
+        audio: String(q.speak.audio || '')
+      } : null,
+      hint: String(q.hint == null ? '' : q.hint),
+      options: Array.isArray(q.options)
+        ? q.options.filter(isObj).slice(0, 6).map(o => ({
+          label: String(o.label == null ? '' : o.label),
+          html: String(o.html == null ? '' : o.html)
+        }))
+        : [],
+      right: 0,
+      dueAt: Date.now() + 7 * 86400000,
+      at: Date.now()
+    });
+    if (state.reviewBook.length > 60) state.reviewBook.shift();
+    save();
+  }
+
   function dueReview(limit = 12) {
     const now = Date.now();
-    return state.wrongBook
-      .filter(w => (Number(w.dueAt) || 0) <= now)
+    const pool = state.wrongBook.map(w => ({ w, kind: 'wrong' }))
+      .concat(state.reviewBook.map(w => ({ w, kind: 'review' })));
+    return pool
+      .filter(({ w }) => (Number(w.dueAt) || 0) <= now)
       // 该知识点已经掌握（等级 ≥ 4）就不再占用复习时间
-      .filter(w => masteryLevel(w.subject, w.type) < 4)
-      .sort((a, b) => (Number(a.dueAt) || 0) - (Number(b.dueAt) || 0))
+      .filter(({ w }) => masteryLevel(w.subject, w.type, w.skill) < 4)
+      .sort((a, b) => (Number(a.w.dueAt) || 0) - (Number(b.w.dueAt) || 0))
       .slice(0, Math.max(1, Math.round(Number(limit) || 12)))
-      .map(w => ({
+      .map(({ w, kind }) => ({
         id: w.id,
+        kind,
         subject: w.subject,
         type: w.type,
+        skill: w.skill || '',
         title: w.title,
         visual: w.visual,
         answer: w.answer,
@@ -2037,23 +2145,40 @@ const App = (() => {
 
   function reviewWrong(id, ok) {
     const i = state.wrongBook.findIndex(w => w.id === id);
-    if (i === -1) return;
-    const w = state.wrongBook[i];
-    if (ok) {
-      w.right = (Number(w.right) || 0) + 1;
-      if (w.right >= 2) {
-        state.wrongBook.splice(i, 1);
+    if (i > -1) {
+      const w = state.wrongBook[i];
+      if (ok) {
+        w.right = (Number(w.right) || 0) + 1;
+        if (w.right >= 2) {
+          state.wrongBook.splice(i, 1);
+        } else {
+          w.dueAt = Date.now() + REVIEW_GAPS[Math.min((Number(w.times) || 1) - 1, REVIEW_GAPS.length - 1)] * 86400000;
+        }
       } else {
-        w.dueAt = Date.now() + REVIEW_GAPS[Math.min((Number(w.times) || 1) - 1, REVIEW_GAPS.length - 1)] * 86400000;
+        w.times = Math.min(999, (Number(w.times) || 1) + 1);
+        w.right = 0;
+        w.at = Date.now();
+        w.dueAt = Date.now() + REVIEW_GAPS[Math.min(w.times - 1, REVIEW_GAPS.length - 1)] * 86400000;
       }
-    } else {
-      w.times = Math.min(999, (Number(w.times) || 1) + 1);
-      w.right = 0;
-      w.at = Date.now();
-      w.dueAt = Date.now() + REVIEW_GAPS[Math.min(w.times - 1, REVIEW_GAPS.length - 1)] * 86400000;
+      save();
+      refreshReviewBadge();
+      return;
     }
-    save();
-    refreshReviewBadge();
+
+    // 复习本里的题：答错就转进错题本，答对两次就毕业
+    const ri = state.reviewBook.findIndex(w => w.id === id);
+    if (ri === -1) return;
+    const r = state.reviewBook[ri];
+    if (ok) {
+      r.right = (Number(r.right) || 0) + 1;
+      if (r.right >= 2) state.reviewBook.splice(ri, 1);
+      else r.dueAt = Date.now() + 7 * 86400000;
+      save();
+      refreshReviewBadge();
+    } else {
+      state.reviewBook.splice(ri, 1);
+      addWrong(r);
+    }
   }
 
   /* 复习局结算：不和主线比星，只给小额橡果和经验 */
@@ -2124,8 +2249,7 @@ const App = (() => {
   }
 
   function dueCount() {
-    const now = Date.now();
-    return state.wrongBook.filter(w => (Number(w.dueAt) || 0) <= now).length;
+    return dueReview(999).length;
   }
 
   function refreshReviewBadge() {
@@ -2253,8 +2377,8 @@ const App = (() => {
       refreshHome();
       petReact('react-happy');
       AudioFX.petEat();
-      AudioFX.speak(item.say, 'zh-CN');
       $('#pet-speech').textContent = item.say;
+      AudioFX.speakCat(item.say, { force: true });
       toast('小龙猫吃得真开心！');
       return;
     }
@@ -2805,7 +2929,7 @@ const App = (() => {
     roomEmoteTimer = setTimeout(() => el.classList.remove('show'), Math.max(700, ms || 1600));
   }
 
-  /* 自主说话只出气泡不出声：语音合成太慢，会拖乱节奏
+  /* 说话时气泡和语音一起出：命中本地语音包立即播报，没收录的退回系统语音
      tip 传入 { label, run } 时，气泡里会出现一个能直接去玩的按钮 */
   function roomSay(text, ms, tip) {
     const speech = $('#room-speech');
@@ -2824,6 +2948,8 @@ const App = (() => {
       go.hidden = !roomTipAction;
     }
     speech.classList.add('show');
+    // soft：正在朗读题目时不插嘴，避免两路声音叠在一起
+    AudioFX.speakCat(text, { soft: true });
     clearTimeout(roomSpeechTimer);
     roomSpeechTimer = setTimeout(() => {
       speech.classList.remove('show');
@@ -3726,7 +3852,7 @@ th{background:#eef6f0}.meta{color:#7a8a83;font-size:13px}
 <div class="card"><b>${state.stats.streak}</b>连续天数</div></div>
 <h2>每天表现</h2><table><tr><th>日期</th><th>答对/总数</th><th>正确率</th><th>学习时长</th></tr>${rows}</table>
 <h2>各科掌握度</h2><table><tr><th>科目</th><th>答对/总数</th><th>正确率</th></tr>${subs}</table>
-<h2>待关注</h2><p>错题本共 ${state.wrongBook.length} 道，其中今天该复习 ${dueCount()} 道。</p>
+<h2>待关注</h2><p>错题本共 ${state.wrongBook.length} 道，复习本共 ${state.reviewBook.length} 道，其中今天该复习 ${dueCount()} 道。</p>
 </body></html>`;
     download('小龙猫周报-' + dateKey(0) + '.html', html, 'text/html;charset=utf-8');
     toast('周报已导出，可用浏览器打开');
@@ -3981,6 +4107,24 @@ th{background:#eef6f0}.meta{color:#7a8a83;font-size:13px}
     return (t && t[0]) || type;
   }
 
+  // 知识点里的「具体是哪一个」：n-count-5 → 5，h-char-山 → 山；英文 ID 不硬翻
+  const SKILL_MODES = {
+    odd: 1, size: 1, say: 1, pic: 1, listen: 1, name: 1, pick: 1, mean: 1, inv: 1,
+    count: 1, next: 1, qty: 1, cmp: 1, pat: 1
+  };
+
+  function itemLabel(skill) {
+    const parts = String(skill || '').split('-').filter(Boolean);
+    if (!parts.length) return '';
+    let last = parts[parts.length - 1];
+    if (SKILL_MODES[last]) last = parts.length >= 2 ? parts[parts.length - 2] : '';
+    if (!last) return '';
+    if (/^[\u4e00-\u9fa5]{1,3}$/.test(last)) return last;
+    if (/^[A-Za-z0-9]{1,2}$/.test(last)) return last;
+    if (/^[0-9+×÷=]{1,6}$/.test(last)) return last;
+    return '';
+  }
+
   function renderWeekPlan() {
     const el = $('#parent-plan');
     if (!el) return;
@@ -4032,7 +4176,7 @@ th{background:#eef6f0}.meta{color:#7a8a83;font-size:13px}
       const parts = k.split('|');
       const m = state.mastery[k] || {};
       return {
-        subject: parts[0], type: parts[1],
+        subject: parts[0], type: parts[1], skill: parts[2] || '',
         level: Number(m.level) || 0,
         right: Number(m.right) || 0,
         wrong: Number(m.wrong) || 0
@@ -4058,9 +4202,10 @@ th{background:#eef6f0}.meta{color:#7a8a83;font-size:13px}
 
     el.innerHTML = weakHtml + rows.slice(0, 12).map(r => {
       const sub = Game.SUBJECTS[r.subject];
+      const extra = itemLabel(r.skill);
       const dots = [1, 2, 3, 4, 5].map(n => `<i class="${n <= r.level ? 'on' : ''}"></i>`).join('');
       return `<div class="mastery-row">
-        <span class="mastery-name">${Art.em(sub.icon)} ${esc(sub.name)} · ${esc(typeLabel(r.type))}</span>
+        <span class="mastery-name">${Art.em(sub.icon)} ${esc(sub.name)} · ${esc(typeLabel(r.type))}${extra ? ' · ' + esc(extra) : ''}</span>
         <span class="mastery-dots">${dots}</span>
         <span class="mastery-num">${r.right}/${r.right + r.wrong}</span>
       </div>`;
@@ -4428,7 +4573,13 @@ th{background:#eef6f0}.meta{color:#7a8a83;font-size:13px}
       if (task) { claimTask(task.dataset.task); return; }
 
       const nav = e.target.closest('[data-nav]');
-      if (nav) { AudioFX.click(); show(nav.dataset.nav); return; }
+      if (nav) {
+        AudioFX.click();
+        // 小游戏乐园的内容由 MiniGame 渲染，走 open() 才不会出现空白页
+        if (nav.dataset.nav === 'arcade' && typeof MiniGame !== 'undefined') { MiniGame.open(); return; }
+        show(nav.dataset.nav);
+        return;
+      }
 
       const careBtn = e.target.closest('[data-care]');
       if (careBtn) { care(careBtn.dataset.care); return; }
@@ -4476,6 +4627,12 @@ th{background:#eef6f0}.meta{color:#7a8a83;font-size:13px}
     $('#btn-quit').addEventListener('click', () => Game.quit());
     $('#btn-listen').addEventListener('click', () => Game.listen());
     $('#btn-again').addEventListener('click', () => Game.replay());
+    $('#btn-train').addEventListener('click', () => {
+      const info = Game.info();
+      if (!info || info.review || !info.stageId || info.stageId === 'review') return;
+      if (!DATA.curriculum[info.subject]) return;
+      Game.startStage(info.subject, info.stageId);
+    });
     $('#btn-back-home').addEventListener('click', () => show('home'));
     $('#btn-back-map').addEventListener('click', () => {
       const info = Game.info();
@@ -4680,7 +4837,7 @@ th{background:#eef6f0}.meta{color:#7a8a83;font-size:13px}
     get state() { return state; },
     show, showStages, toast, markDay, finishSession, finishMini, trackAtlas,
     refreshHud, maybeGuide, confirm,
-    addWrong, dueReview, reviewWrong, finishReview, finishPractice, refreshReviewBadge,
+    addWrong, addReview, dueReview, reviewWrong, finishReview, finishPractice, refreshReviewBadge,
     bandInfo, recentAccuracy, noteMastery, masteryLevel, weakPoints, knowledgeProgress, unlockUpTo,
     applyPlacement, applySkipTest, stageUnlocked
   };

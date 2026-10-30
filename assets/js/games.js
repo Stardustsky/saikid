@@ -305,7 +305,7 @@ const Game = (() => {
   function startReview() {
     const items = App.dueReview(12);
     if (!items.length) {
-      App.toast('现在没有要复习的错题，真棒！');
+      App.toast('现在没有要复习的题，真棒！');
       return;
     }
     AudioFX.unlock();
@@ -510,33 +510,47 @@ const Game = (() => {
   function retuneNext() {
     if (!session || session.review || session.kind) return;
     const st = session.tunedStage;
-    if (!st || typeof st.max !== 'number') return;
+    if (!st) return;
     const i = session.index + 1;
     const q = session.questions[i];
     if (!q || q.remedial || q.tuned) return;
     if (!Array.isArray(st.qtypes) || st.qtypes.indexOf(q.type) < 0) return;
     if (session.answers.length < 3) return;
 
+    const numeric = typeof st.max === 'number';
     const acc = sessionAcc(4);
     if (acc == null) return;
     const band = App.bandInfo ? App.bandInfo() : null;
     let stage = null;
 
     if (acc <= 0.5) {
-      // 连错：换成同一知识点的小数字题
-      const low = Quiz.adapt ? Quiz.adapt(st, 0.4, band) : st;
-      stage = Object.assign({}, low, { max: Math.max(2, Math.round((low.max || 5) * 0.75)) });
+      if (numeric) {
+        // 连错：换成同一知识点的小数字题
+        const low = Quiz.adapt ? Quiz.adapt(st, 0.4, band) : st;
+        stage = Object.assign({}, low, { max: Math.max(2, Math.round((low.max || 5) * 0.75)) });
+      } else {
+        // 非数值学科：改成二选一 + 只留一个干扰项，同样能降难度
+        stage = Object.assign({}, st, { easy: true });
+        session.easyOn = true;
+      }
       if (!session.softened) {
         session.softened = true;
         App.toast('小龙猫把题目变简单一点点啦～');
       }
     } else if (acc >= 1 && session.answers.length >= 4) {
-      // 连续一次答对：小幅加难，但不越过年龄档上限
-      const base = typeof session.stage.max === 'number' ? session.stage.max : st.max;
-      const cap = (band && band.cap) || 99;
-      const max = Math.min(cap, Math.max(st.max, Math.round(base * 1.15)));
-      if (max <= st.max) return;
-      stage = Object.assign({}, st, { max: max });
+      if (numeric) {
+        // 连续一次答对：小幅加难，但不越过年龄档上限
+        const base = typeof session.stage.max === 'number' ? session.stage.max : st.max;
+        const cap = (band && band.cap) || 99;
+        const max = Math.min(cap, Math.max(st.max, Math.round(base * 1.15)));
+        if (max <= st.max) return;
+        stage = Object.assign({}, st, { max: max });
+      } else {
+        // 非数值学科：答得顺就恢复完整选项
+        if (!session.easyOn) return;
+        session.easyOn = false;
+        stage = Object.assign({}, st, { easy: false });
+      }
     } else {
       return;
     }
@@ -811,6 +825,7 @@ const Game = (() => {
     session.answers.push({
       type: q.type,
       subject: session.key,
+      key: q.key || '',
       title: q.title,
       answer: q.answer,
       ok,
@@ -833,6 +848,19 @@ const Game = (() => {
         hint: q.hint || '',
         options: q.options.map(o => ({ label: o.label, html: o.html || '', say: o.say || '', lang: o.lang || '', audio: o.audio || '' })),
         chosen: opt ? opt.label : ''
+      });
+    } else if (App.addReview) {
+      // 答对的知识点也排进复习本，过几天再回来巩固一次
+      App.addReview({
+        subject: session.key,
+        type: q.type,
+        key: q.key || '',
+        title: q.title,
+        visual: q.visual || '',
+        answer: q.answer,
+        speak: q.speak || null,
+        hint: q.hint || '',
+        options: q.options.map(o => ({ label: o.label, html: o.html || '', say: o.say || '', lang: o.lang || '', audio: o.audio || '' }))
       });
     }
   }
@@ -943,7 +971,7 @@ const Game = (() => {
       ? (stars === 3 ? '完美通关！' : '闯关成功！')
       : '还差一点点～';
     $('#result-sub').textContent = session.review
-      ? `复习了 ${total} 道错题，答对 ${session.correct} 道。答对后会减少复习次数哦～`
+      ? `复习了 ${total} 道旧题，答对 ${session.correct} 道。答对后会减少复习次数哦～`
       : passed
         ? (stars === 3
           ? '全部一次答对，小龙猫为你骄傲～'
@@ -981,6 +1009,14 @@ const Game = (() => {
 
     const backBtn = $('#btn-back-map');
     if (backBtn) backBtn.textContent = session.review ? '回到乐园' : session.levelId ? '回到地图' : '返回关卡';
+
+    // 没通关时给一个「回到这一阶段重练」的直达入口，省得孩子自己翻关卡
+    const trainBtn = $('#btn-train');
+    if (trainBtn) {
+      const canTrain = !session.review && !passed && !!session.stageId &&
+        session.stageId !== 'review' && !!DATA.curriculum[session.key];
+      trainBtn.hidden = !canTrain;
+    }
 
     paintNextStop(level, passed, session.review);
     AudioFX.levelUp();
@@ -1049,6 +1085,8 @@ const Game = (() => {
 
     const backBtn = $('#btn-back-map');
     if (backBtn) backBtn.textContent = session.kind === 'placement' ? '回到乐园' : '返回关卡';
+    const trainBtn = $('#btn-train');
+    if (trainBtn) trainBtn.hidden = true;
 
     if (passed) AudioFX.levelUp();
     paintNextStop(null, passed, false);
